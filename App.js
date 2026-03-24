@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Text, View, FlatList, TouchableOpacity } from 'react-native';
+import { Text, View, FlatList, TouchableOpacity, Alert } from 'react-native';
 import styles from './styles/styles';
 import CardUser from './components/users/cardUser';
 import CreateUsers from './components/users/createUsers';
@@ -18,10 +18,63 @@ export default function App() {
   const [nextIdUser, setNextIdUser] = useState(1);
   const [nextIdProduct, setNextIdProduct] = useState(1);
   const [activeTab, setActiveTab] = useState('user'); // 'user' ou 'product'
+  const [userEditando, setUserEditando] = useState(null); // Usuário sendo editado
 
   function handleCreateUser(newUser) {
     setUsers([...users, newUser]);
     setNextIdUser(nextIdUser + 1);
+  }
+
+  function handleUpdateUser(userAtualizado) {
+    setUsers(users.map(u => u.id === userAtualizado.id ? userAtualizado : u));
+    setUserEditando(null);
+    
+    fetch(`http://localhost:3000/users/${userAtualizado.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(userAtualizado)
+    })
+    .then(response => {
+      if (!response.ok) throw new Error('Erro ao atualizar usuário');
+      return response.json();
+    })
+    .then(data => console.log('Usuário atualizado:', data))
+    .catch(error => Alert.alert('Erro', error.message));
+  }
+
+  function handleDeleteUser(id) {
+    Alert.alert(
+      'Confirmar Exclusão',
+      'Tem certeza que deseja excluir este usuário?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Excluir',
+          style: 'destructive',
+          onPress: () => {
+            setUsers(users.filter(u => u.id !== id));
+            
+            fetch(`http://localhost:3000/users/${id}`, {
+              method: 'DELETE'
+            })
+            .then(response => {
+              if (!response.ok) throw new Error('Erro ao excluir usuário');
+              return response.json();
+            })
+            .then(data => console.log('Usuário excluído:', data))
+            .catch(error => Alert.alert('Erro', error.message));
+          }
+        }
+      ]
+    );
+  }
+
+  function handleEditUser(user) {
+    setUserEditando(user);
+  }
+
+  function handleCancelEdit() {
+    setUserEditando(null);
   }
 
   function handleCreateProduct(newProduct) {
@@ -58,10 +111,18 @@ export default function App() {
         {/* Painel Esquerdo - Formulário */}
         <View style={styles.leftPanel}>
           <Text style={styles.sectionTitle}>
-            {activeTab === 'user' ? 'Novo Usuário' : 'Novo Produto'}
+            {activeTab === 'user' 
+              ? (userEditando ? 'Editar Usuário' : 'Novo Usuário') 
+              : 'Novo Produto'}
           </Text>
           {activeTab === 'user' ? (
-            <CreateUsers onCreateUser={handleCreateUser} nextIdUser={nextIdUser} />
+            <CreateUsers 
+              onCreateUser={handleCreateUser} 
+              onUpdateUser={handleUpdateUser}
+              userEditando={userEditando}
+              onCancelEdit={handleCancelEdit}
+              nextIdUser={nextIdUser} 
+            />
           ) : (
             <CreateProduct onCreateProduct={handleCreateProduct} nextIdProduct={nextIdProduct} />
           )}
@@ -76,7 +137,13 @@ export default function App() {
             <FlatList
               data={users}
               keyExtractor={(item) => String(item.id)}
-              renderItem={({ item }) => <CardUser props={item} />}
+              renderItem={({ item }) => (
+                <CardUser 
+                  props={item} 
+                  onEdit={() => handleEditUser(item)}
+                  onDelete={() => handleDeleteUser(item.id)}
+                />
+              )}
               style={styles.listContainer}
             />
           ) : (

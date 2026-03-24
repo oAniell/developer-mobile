@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    minHeight: 70,
   },
 
   cardAvatar: {
@@ -148,6 +148,47 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
   },
 
+  // --- Card Actions (Editar/Excluir) ---
+  cardInfo: {
+    flex: 1,
+    marginRight: 12,
+  },
+
+  cardActions: {
+    flexDirection: 'column',
+    width: 80,
+    alignItems: 'flex-end',
+  },
+
+  actionButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderRadius: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 6,
+    minWidth: 60,
+    height: 32,
+  },
+
+  editButton: {
+    backgroundColor: COLORS.accent,
+    borderWidth: 1,
+    borderColor: COLORS.accentDark,
+  },
+
+  deleteButton: {
+    backgroundColor: COLORS.error,
+    borderWidth: 1,
+    borderColor: '#d73a49',
+  },
+
+  actionButtonText: {
+    color: COLORS.white,
+    fontWeight: '600',
+    fontSize: 11,
+  },
+
   // --- Formulário de criação ---
   form: {
     backgroundColor: COLORS.surface,
@@ -188,6 +229,21 @@ const styles = StyleSheet.create({
     color: COLORS.white,
     fontWeight: '600',
     fontSize: 13,
+  },
+
+  buttonGroup: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+
+  updateButton: {
+    flex: 1,
+    backgroundColor: COLORS.success,
+  },
+
+  cancelButton: {
+    flex: 1,
+    backgroundColor: COLORS.textMuted,
   },
   inputError: {
     borderColor: COLORS.error,

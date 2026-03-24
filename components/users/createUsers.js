@@ -2,10 +2,27 @@ import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
 import styles from '../../styles/styles';
 import { useEffect, useState } from 'react';
 
-export default function CreateUsers({ onCreateUser, nextIdUser }) {
+export default function CreateUsers({ 
+  onCreateUser, 
+  onUpdateUser, 
+  userEditando, 
+  onCancelEdit,
+  nextIdUser 
+}) {
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [errors, setErrors] = useState({});
+
+  // Preencher campos quando estiver editando
+  useEffect(() => {
+    if (userEditando) {
+      setNome(userEditando.name);
+      setEmail(userEditando.email);
+    } else {
+      setNome('');
+      setEmail('');
+    }
+  }, [userEditando]);
 
   useEffect(() => {
     fetch('http://localhost:3000/users')
@@ -34,8 +51,11 @@ export default function CreateUsers({ onCreateUser, nextIdUser }) {
   function handleCreateUser() {
     if (!validate()) return;
 
-    const newUser = 
-    { id: nextIdUser, name: nome.trim(), email: email.trim() };
+    const newUser = { 
+      id: nextIdUser, 
+      name: nome.trim(), 
+      email: email.trim() 
+    };
     onCreateUser(newUser);
     setNome('');
     setEmail('');
@@ -55,9 +75,25 @@ export default function CreateUsers({ onCreateUser, nextIdUser }) {
     .catch(error => Alert.alert('Erro', error.message));
   }
 
+  function handleUpdateUser() {
+    if (!validate()) return;
+
+    const userAtualizado = { 
+      id: userEditando.id, 
+      name: nome.trim(), 
+      email: email.trim() 
+    };
+    onUpdateUser(userAtualizado);
+    setNome('');
+    setEmail('');
+    setErrors({});
+  }
+
   return (
     <View style={styles.form}>
-      <Text style={styles.formTitle}>Novo Usuário</Text>
+      <Text style={styles.formTitle}>
+        {userEditando ? 'Editar Usuário' : 'Novo Usuário'}
+      </Text>
 
       <TextInput
         style={[styles.input, errors.nome && styles.inputError]}
@@ -85,9 +121,26 @@ export default function CreateUsers({ onCreateUser, nextIdUser }) {
       />
       {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
 
-      <TouchableOpacity style={styles.button} onPress={handleCreateUser}>
-        <Text style={styles.buttonText}>Criar Usuário</Text>
-      </TouchableOpacity>
+      {userEditando ? (
+        <View style={styles.buttonGroup}>
+          <TouchableOpacity 
+            style={[styles.button, styles.updateButton]} 
+            onPress={handleUpdateUser}
+          >
+            <Text style={styles.buttonText}>Atualizar</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.button, styles.cancelButton]} 
+            onPress={onCancelEdit}
+          >
+            <Text style={styles.buttonText}>Cancelar</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <TouchableOpacity style={styles.button} onPress={handleCreateUser}>
+          <Text style={styles.buttonText}>Criar Usuário</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 }
