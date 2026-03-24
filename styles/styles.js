@@ -1,35 +1,90 @@
 import { StyleSheet } from 'react-native';
 
 const COLORS = {
-  background: '#0F1117',
-  surface: '#1A1D27',
-  surfaceAlt: '#222636',
-  border: '#2E3347',
-  accent: '#6C63FF',
-  accentLight: '#8B85FF',
-  textPrimary: '#F0F0FF',
-  textSecondary: '#8890AA',
-  textMuted: '#555D7A',
-  success: '#4ECCA3',
+  background: '#0D1117',
+  surface: '#161B22',
+  surfaceAlt: '#1C2128',
+  border: '#30363D',
+  accent: '#58A6FF',
+  accentLight: '#79C0FF',
+  accentDark: '#388BFD',
+  textPrimary: '#E6EDF3',
+  textSecondary: '#8B949E',
+  textMuted: '#6E7681',
+  success: '#3FB950',
   white: '#FFFFFF',
+  error: '#F85149',
+  warning: '#D29922',
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
-    alignItems: 'center',
-    paddingTop: 60,
-    paddingHorizontal: 16,
+    paddingTop: 50,
+    paddingHorizontal: 24,
   },
 
   title: {
-    fontSize: 26,
-    fontWeight: '800',
+    fontSize: 22,
+    fontWeight: '600',
     color: COLORS.textPrimary,
-    letterSpacing: 1.5,
-    marginBottom: 24,
-    textTransform: 'uppercase',
+    marginBottom: 20,
+  },
+
+  // --- Layout Principal ---
+  mainContent: {
+    flex: 1,
+    flexDirection: 'row',
+    gap: 24,
+  },
+
+  leftPanel: {
+    width: '35%',
+  },
+
+  rightPanel: {
+    flex: 1,
+  },
+
+  // --- Abas/Navegação ---
+  tabContainer: {
+    flexDirection: 'row',
+    width: '100%',
+    marginBottom: 16,
+    gap: 8,
+  },
+
+  tabButton: {
+    flex: 1,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    alignItems: 'center',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+
+  tabButtonActive: {
+    backgroundColor: COLORS.accent,
+    borderColor: COLORS.accent,
+  },
+
+  tabButtonInactive: {
+    backgroundColor: COLORS.surface,
+  },
+
+  tabText: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+
+  tabTextActive: {
+    color: COLORS.white,
+  },
+
+  tabTextInactive: {
+    color: COLORS.textSecondary,
   },
 
   // --- Card de usuário ---
@@ -37,109 +92,125 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.surface,
     borderWidth: 1,
     borderColor: COLORS.border,
-    borderRadius: 14,
-    padding: 16,
-    marginVertical: 6,
+    borderRadius: 10,
+    padding: 12,
+    marginVertical: 4,
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 14,
+    gap: 12,
   },
 
   cardAvatar: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: COLORS.accent,
     alignItems: 'center',
     justifyContent: 'center',
   },
 
+  cardAvatarProduct: {
+    backgroundColor: COLORS.accentDark,
+  },
+
   cardAvatarText: {
     color: COLORS.white,
-    fontWeight: '700',
-    fontSize: 16,
+    fontWeight: '600',
+    fontSize: 14,
   },
 
   cardId: {
-    fontSize: 10,
+    fontSize: 9,
     color: COLORS.textMuted,
-    fontWeight: '600',
-    letterSpacing: 1,
-    textTransform: 'uppercase',
-    marginBottom: 2,
+    fontWeight: '500',
   },
 
   cardName: {
-    fontSize: 15,
-    fontWeight: '700',
+    fontSize: 14,
+    fontWeight: '600',
     color: COLORS.textPrimary,
   },
 
   cardEmail: {
-    fontSize: 12,
+    fontSize: 11,
     color: COLORS.textSecondary,
-    marginTop: 2,
+  },
+
+  cardPrice: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: COLORS.success,
+  },
+
+  cardDescription: {
+    fontSize: 11,
+    color: COLORS.textSecondary,
   },
 
   // --- Formulário de criação ---
   form: {
-    backgroundColor: COLORS.surfaceAlt,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    borderRadius: 16,
-    padding: 20,
-    width: '100%',
-    marginTop: 16,
-    marginBottom: 32,
-    gap: 12,
-  },
-
-  formTitle: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: COLORS.accent,
-    letterSpacing: 1.5,
-    textTransform: 'uppercase',
-    marginBottom: 4,
-  },
-
-  input: {
     backgroundColor: COLORS.surface,
     borderWidth: 1,
     borderColor: COLORS.border,
     borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
+    padding: 16,
+    width: '100%',
+    gap: 10,
+  },
+
+  formTitle: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: COLORS.accent,
+    marginBottom: 4,
+  },
+
+  input: {
+    backgroundColor: COLORS.surfaceAlt,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
     color: COLORS.textPrimary,
-    fontSize: 14,
+    fontSize: 13,
   },
 
   button: {
     backgroundColor: COLORS.accent,
-    borderRadius: 10,
-    paddingVertical: 14,
+    borderRadius: 8,
+    paddingVertical: 12,
     alignItems: 'center',
-    marginTop: 4,
   },
 
   buttonText: {
     color: COLORS.white,
-    fontWeight: '700',
-    fontSize: 14,
-    letterSpacing: 1,
-    textTransform: 'uppercase',
+    fontWeight: '600',
+    fontSize: 13,
   },
   inputError: {
-  borderColor: '#FF6B6B',
-},
+    borderColor: COLORS.error,
+  },
 
-errorText: {
-  color: '#FF6B6B',
-  fontSize: 11,
-  marginTop: -6,
-  marginLeft: 4,
-},
+  errorText: {
+    color: COLORS.error,
+    fontSize: 11,
+    marginTop: -6,
+    marginLeft: 4,
+  },
+
+  // --- Seções ---
+  sectionTitle: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: COLORS.textMuted,
+    marginBottom: 8,
+  },
+
+  listContainer: {
+    flex: 1,
+  },
 
 });
 

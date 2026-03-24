@@ -1,8 +1,8 @@
 import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
-import styles from '../styles/styles';
+import styles from '../../styles/styles';
 import { useEffect, useState } from 'react';
 
-export default function CreateUsers({ onCreateUser, nextId }) {
+export default function CreateUsers({ onCreateUser, nextIdUser }) {
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [errors, setErrors] = useState({});
@@ -35,7 +35,7 @@ export default function CreateUsers({ onCreateUser, nextId }) {
     if (!validate()) return;
 
     const newUser = 
-    { id: nextId, name: nome.trim(), email: email.trim() };
+    { id: nextIdUser, name: nome.trim(), email: email.trim() };
     onCreateUser(newUser);
     setNome('');
     setEmail('');
