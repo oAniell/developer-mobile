@@ -19,6 +19,7 @@ export default function App() {
   const [nextIdProduct, setNextIdProduct] = useState(1);
   const [activeTab, setActiveTab] = useState('user'); // 'user' ou 'product'
   const [userEditando, setUserEditando] = useState(null); // Usuário sendo editado
+  const [productEditando, setProductEditando] = useState(null); // Produto sendo editado
 
   function handleCreateUser(newUser) {
     setUsers([...users, newUser]);
@@ -28,18 +29,18 @@ export default function App() {
   function handleUpdateUser(userAtualizado) {
     setUsers(users.map(u => u.id === userAtualizado.id ? userAtualizado : u));
     setUserEditando(null);
-    
+
     fetch(`http://localhost:3000/users/${userAtualizado.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(userAtualizado)
     })
-    .then(response => {
-      if (!response.ok) throw new Error('Erro ao atualizar usuário');
-      return response.json();
-    })
-    .then(data => console.log('Usuário atualizado:', data))
-    .catch(error => Alert.alert('Erro', error.message));
+      .then(response => {
+        if (!response.ok) throw new Error('Erro ao atualizar usuário');
+        return response.json();
+      })
+      .then(data => console.log('Usuário atualizado:', data))
+      .catch(error => Alert.alert('Erro', error.message));
   }
 
   function handleDeleteUser(id) {
@@ -53,20 +54,31 @@ export default function App() {
           style: 'destructive',
           onPress: () => {
             setUsers(users.filter(u => u.id !== id));
-            
+
             fetch(`http://localhost:3000/users/${id}`, {
               method: 'DELETE'
             })
-            .then(response => {
-              if (!response.ok) throw new Error('Erro ao excluir usuário');
-              return response.json();
-            })
-            .then(data => console.log('Usuário excluído:', data))
-            .catch(error => Alert.alert('Erro', error.message));
+              .then(response => {
+                if (!response.ok) throw new Error('Erro ao excluir usuário');
+                return response.json();
+              })
+              .then(data => console.log('Usuário excluído:', data))
+              .catch(error => Alert.alert('Erro', error.message));
           }
         }
       ]
     );
+  }
+
+  function hadleDeleteProduto(id) {
+    const lista = products.filter(filtro => filtro.id !== id)
+    setProducts(lista)
+
+  }
+  function hadleDeleteUser(id) {
+    const lista = users.filter(filtro => filtro.id !== id)
+    setUsers(lista)
+
   }
 
   function handleEditUser(user) {
@@ -77,6 +89,19 @@ export default function App() {
     setUserEditando(null);
   }
 
+  function handleEditProduct(product) {
+    setProductEditando(product);
+  }
+
+  function handleCancelEditProduct() {
+    setProductEditando(null);
+  }
+
+  function handleUpdateProduct(productAtualizado) {
+    setProducts(products.map(p => p.id === productAtualizado.id ? productAtualizado : p));
+    setProductEditando(null);
+  }
+
   function handleCreateProduct(newProduct) {
     setProducts([...products, newProduct]);
     setNextIdProduct(nextIdProduct + 1);
@@ -85,10 +110,10 @@ export default function App() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Cadastros</Text>
-      
+
       {/* Abas de Navegação */}
       <View style={styles.tabContainer}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[styles.tabButton, activeTab === 'user' ? styles.tabButtonActive : styles.tabButtonInactive]}
           onPress={() => setActiveTab('user')}
         >
@@ -96,7 +121,7 @@ export default function App() {
             Usuários
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[styles.tabButton, activeTab === 'product' ? styles.tabButtonActive : styles.tabButtonInactive]}
           onPress={() => setActiveTab('product')}
         >
@@ -111,20 +136,26 @@ export default function App() {
         {/* Painel Esquerdo - Formulário */}
         <View style={styles.leftPanel}>
           <Text style={styles.sectionTitle}>
-            {activeTab === 'user' 
-              ? (userEditando ? 'Editar Usuário' : 'Novo Usuário') 
-              : 'Novo Produto'}
+            {activeTab === 'user'
+              ? (userEditando ? 'Editar Usuário' : 'Novo Usuário')
+              : (productEditando ? 'Editar Produto' : 'Novo Produto')}
           </Text>
           {activeTab === 'user' ? (
-            <CreateUsers 
-              onCreateUser={handleCreateUser} 
+            <CreateUsers
+              onCreateUser={handleCreateUser}
               onUpdateUser={handleUpdateUser}
               userEditando={userEditando}
               onCancelEdit={handleCancelEdit}
-              nextIdUser={nextIdUser} 
+              nextIdUser={nextIdUser}
             />
           ) : (
-            <CreateProduct onCreateProduct={handleCreateProduct} nextIdProduct={nextIdProduct} />
+            <CreateProduct 
+              onCreateProduct={handleCreateProduct} 
+              onUpdateProduct={handleUpdateProduct}
+              productEditando={productEditando}
+              onCancelEdit={handleCancelEditProduct}
+              nextIdProduct={nextIdProduct} 
+            />
           )}
         </View>
 
@@ -138,10 +169,10 @@ export default function App() {
               data={users}
               keyExtractor={(item) => String(item.id)}
               renderItem={({ item }) => (
-                <CardUser 
-                  props={item} 
+                <CardUser
+                  props={item}
                   onEdit={() => handleEditUser(item)}
-                  onDelete={() => handleDeleteUser(item.id)}
+                  onDelete={() => hadleDeleteUser(item.id)}
                 />
               )}
               style={styles.listContainer}
@@ -150,12 +181,18 @@ export default function App() {
             <FlatList
               data={products}
               keyExtractor={(item) => String(item.id)}
-              renderItem={({ item }) => <CardProduct props={item} />}
+              renderItem={({ item }) => (
+                <CardProduct 
+                  props={item} 
+                  onDelete={() => hadleDeleteProduto(item.id)}
+                  onEdit={() => handleEditProduct(item)}
+                />
+              )}
               style={styles.listContainer}
             />
           )}
         </View>
       </View>
     </View>
-   );
+  );
 }

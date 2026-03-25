@@ -2,11 +2,23 @@ import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
 import styles from '../../styles/styles';
 import { useEffect, useState } from 'react';
 
-export default function CreateProduct({ onCreateProduct, nextIdProduct }) {
+export default function CreateProduct({ onCreateProduct, onUpdateProduct, productEditando, onCancelEdit, nextIdProduct }) {
     const [nome, setNome] = useState('');
     const [preco, setPreco] = useState('');
     const [descricao, setDescricao] = useState('');
     const [errors, setErrors] = useState({});
+
+    useEffect(() => {
+        if (productEditando) {
+            setNome(productEditando.name);
+            setPreco(String(productEditando.price));
+            setDescricao(productEditando.description);
+        } else {
+            setNome('');
+            setPreco('');
+            setDescricao('');
+        }
+    }, [productEditando]);
 
     useEffect(() => {
         fetch('http://localhost:3000/products')
@@ -32,33 +44,57 @@ export default function CreateProduct({ onCreateProduct, nextIdProduct }) {
         return Object.keys(newErrors).length === 0;
     }
 
-    function handleCreateProduct() {
+    function handleSubmit() {
         if (!validate()) return;
 
-        const newProduct = { id: nextIdProduct, name: nome.trim(), price: parseFloat(preco.trim()), description: descricao.trim() };
-        onCreateProduct(newProduct);
+        if (productEditando) {
+            const updatedProduct = { 
+                id: productEditando.id, 
+                name: nome.trim(), 
+                price: parseFloat(preco.trim()), 
+                description: descricao.trim() 
+            };
+            onUpdateProduct(updatedProduct);
+            setNome('');
+            setPreco('');
+            setDescricao('');
+            setErrors({});
+        } else {
+            const newProduct = { id: nextIdProduct, name: nome.trim(), price: parseFloat(preco.trim()), description: descricao.trim() };
+            onCreateProduct(newProduct);
+            setNome('');
+            setPreco('');
+            setDescricao('');
+            setErrors({});
+
+            fetch('http://localhost:3000/products', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newProduct)
+            })
+
+                .then(response => {
+                    if (!response.ok) throw new Error('Erro ao criar produto');
+                    return response.json();
+                })
+                .then(data => console.log('Produto criado:', data))
+                .catch(error => Alert.alert('Erro', error.message));
+        }
+    }
+
+    function handleCancel() {
         setNome('');
         setPreco('');
         setDescricao('');
         setErrors({});
-
-        fetch('http://localhost:3000/products', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newProduct)
-        })
-
-            .then(response => {
-                if (!response.ok) throw new Error('Erro ao criar produto');
-                return response.json();
-            })
-            .then(data => console.log('Produto criado:', data))
-            .catch(error => Alert.alert('Erro', error.message));
+        if (onCancelEdit) onCancelEdit();
     }
 
     return (
         <View style={styles.form}>
-            <Text style={styles.formTitle}>Novo Produto</Text>
+            <Text style={styles.formTitle}>
+                {productEditando ? 'Editar Produto' : 'Novo Produto'}
+            </Text>
 
             <TextInput
                 style={[styles.input, errors.nome && styles.inputError]}
@@ -99,9 +135,20 @@ export default function CreateProduct({ onCreateProduct, nextIdProduct }) {
             {errors.descricao && <Text style={styles.errorText}>{errors.descricao}</Text>}
 
 
-            <TouchableOpacity style={styles.button} onPress={handleCreateProduct}>
-                <Text style={styles.buttonText}>Criar Produto</Text>
-            </TouchableOpacity>
+            {productEditando ? (
+                <>
+                    <TouchableOpacity style={[styles.button, styles.updateButton]} onPress={handleSubmit}>
+                        <Text style={styles.buttonText}>Atualizar Produto</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={handleCancel}>
+                        <Text style={styles.buttonText}>Cancelar</Text>
+                    </TouchableOpacity>
+                </>
+            ) : (
+                <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+                    <Text style={styles.buttonText}>Criar Produto</Text>
+                </TouchableOpacity>
+            )}
         </View>
     );
 }

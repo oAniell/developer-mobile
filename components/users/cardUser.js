@@ -9,7 +9,7 @@ export default function CardUser({ props, onEdit, onDelete }) {
     if (onEdit) onEdit();
   };
 
-  const handleDelete = () => {
+  const hadleDeleteUser = () => {
     console.log('Excluir usuário:', props.id);
     if (onDelete) onDelete();
   };
@@ -34,7 +34,7 @@ export default function CardUser({ props, onEdit, onDelete }) {
         </TouchableOpacity>
         <TouchableOpacity 
           style={[styles.actionButton, styles.deleteButton]} 
-          onPress={handleDelete}
+          onPress={hadleDeleteUser}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
           <Text style={styles.actionButtonText}>Excluir</Text>
