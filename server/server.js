@@ -62,6 +62,6 @@ app.delete('/products/:id', (req, res) => {
   res.status(204).send();
 });
 
-app.listen(3000, () => {
-  console.log('Servidor rodando em http://localhost:3000');
+app.listen(3001, () => {
+  console.log('Servidor rodando em http://localhost:3001');
 });

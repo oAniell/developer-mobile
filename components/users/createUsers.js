@@ -25,7 +25,7 @@ export default function CreateUsers({
   }, [userEditando]);
 
   useEffect(() => {
-    fetch('http://localhost:3000/users')
+    fetch('http://localhost:3001/users')
       .then(response => response.json())
       .then(data => console.log('Usuários existentes:', data))
       .catch(error => console.error('Erro ao buscar usuários:', error));
@@ -61,7 +61,7 @@ export default function CreateUsers({
     setEmail('');
     setErrors({});
     
-    fetch('http://localhost:3000/users', {
+    fetch('http://localhost:3001/users', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newUser)

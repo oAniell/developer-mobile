@@ -30,7 +30,7 @@ export default function App() {
     setUsers(users.map(u => u.id === userAtualizado.id ? userAtualizado : u));
     setUserEditando(null);
 
-    fetch(`http://localhost:3000/users/${userAtualizado.id}`, {
+    fetch(`http://localhost:3001/users/${userAtualizado.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(userAtualizado)
@@ -55,7 +55,7 @@ export default function App() {
           onPress: () => {
             setUsers(users.filter(u => u.id !== id));
 
-            fetch(`http://localhost:3000/users/${id}`, {
+            fetch(`http://localhost:3001/users/${id}`, {
               method: 'DELETE'
             })
               .then(response => {
