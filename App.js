@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Text, View, FlatList, TouchableOpacity, Alert } from 'react-native';
 import styles from './styles/styles';
 import CardUser from './components/users/cardUser';
@@ -9,6 +10,8 @@ import CreateProduct from './components/products/createProduct';
 export default function App() {
   const [users, setUsers] = useState([]);
   const [products, setProducts] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [products, setProducts] = useState([]);
   const [nextIdUser, setNextIdUser] = useState(1);
   const [nextIdProduct, setNextIdProduct] = useState(1);
   const [activeTab, setActiveTab] = useState('user');
@@ -17,24 +20,27 @@ export default function App() {
 
   // Carrega dados da API ao iniciar
   useEffect(() => {
-    fetch('http://localhost:3001/users')
-      .then(r => r.json())
+    fetch('http://localhost:3000/users')
+      .then(res => res.json())
       .then(data => {
         setUsers(data);
-        if (data.length > 0) setNextIdUser(Math.max(...data.map(u => u.id)) + 1);
+        if (data.length > 0) {
+          setNextIdUser(Math.max(...data.map(u => u.id)) + 1);
+        }
       })
-      .catch(() => {});
+      .catch(error => console.error('Erro ao carregar usuários:', error));
 
-    fetch('http://localhost:3001/products')
-      .then(r => r.json())
+    fetch('http://localhost:3000/products')
+      .then(res => res.json())
       .then(data => {
         setProducts(data);
-        if (data.length > 0) setNextIdProduct(Math.max(...data.map(p => p.id)) + 1);
+        if (data.length > 0) {
+          setNextIdProduct(Math.max(...data.map(p => p.id)) + 1);
+        }
       })
-      .catch(() => {});
+      .catch(error => console.error('Erro ao carregar produtos:', error));
   }, []);
 
-  // --- Usuários ---
   function handleCreateUser(newUser) {
     setUsers([...users, newUser]);
     setNextIdUser(nextIdUser + 1);
@@ -52,14 +58,65 @@ export default function App() {
       .catch(error => Alert.alert('Erro', error.message));
   }
 
-  function handleDeleteUser(id) {
-    setUsers(users.filter(u => u.id !== id));
-    fetch(`http://localhost:3001/users/${id}`, { method: 'DELETE' })
-      .catch(error => Alert.alert('Erro', error.message));
+  function hadleDeleteProduto(id) {
+    Alert.alert(
+      'Confirmar Exclusão',
+      'Tem certeza que deseja excluir este produto?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Excluir',
+          style: 'destructive',
+          onPress: () => {
+            setProducts(products.filter(p => p.id !== id));
+
+            fetch(`http://localhost:3000/products/${id}`, {
+              method: 'DELETE'
+            })
+              .then(response => {
+                if (!response.ok) throw new Error('Erro ao excluir produto');
+              })
+              .then(() => console.log('Produto excluído:', id))
+              .catch(error => Alert.alert('Erro', error.message));
+          }
+        }
+      ]
+    );
   }
 
-  function handleEditUser(user) { setUserEditando(user); }
-  function handleCancelEdit() { setUserEditando(null); }
+  function hadleDeleteUser(id) {
+    Alert.alert(
+      'Confirmar Exclusão',
+      'Tem certeza que deseja excluir este usuário?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Excluir',
+          style: 'destructive',
+          onPress: () => {
+            setUsers(users.filter(u => u.id !== id));
+
+            fetch(`http://localhost:3000/users/${id}`, {
+              method: 'DELETE'
+            })
+              .then(response => {
+                if (!response.ok) throw new Error('Erro ao excluir usuário');
+              })
+              .then(() => console.log('Usuário excluído:', id))
+              .catch(error => Alert.alert('Erro', error.message));
+          }
+        }
+      ]
+    );
+  }
+
+  function handleEditUser(user) {
+    setUserEditando(user);
+  }
+
+  function handleCancelEdit() {
+    setUserEditando(null);
+  }
 
   // --- Produtos ---
   function handleCreateProduct(newProduct) {
@@ -70,23 +127,24 @@ export default function App() {
   function handleUpdateProduct(productAtualizado) {
     setProducts(products.map(p => p.id === productAtualizado.id ? productAtualizado : p));
     setProductEditando(null);
-    fetch(`http://localhost:3001/products/${productAtualizado.id}`, {
+
+    fetch(`http://localhost:3000/products/${productAtualizado.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(productAtualizado)
     })
-      .then(r => { if (!r.ok) throw new Error('Erro ao atualizar produto'); return r.json(); })
+      .then(response => {
+        if (!response.ok) throw new Error('Erro ao atualizar produto');
+        return response.json();
+      })
+      .then(data => console.log('Produto atualizado:', data))
       .catch(error => Alert.alert('Erro', error.message));
   }
 
-  function handleDeleteProduct(id) {
-    setProducts(products.filter(p => p.id !== id));
-    fetch(`http://localhost:3001/products/${id}`, { method: 'DELETE' })
-      .catch(error => Alert.alert('Erro', error.message));
+  function handleCreateProduct(newProduct) {
+    setProducts([...products, newProduct]);
+    setNextIdProduct(nextIdProduct + 1);
   }
-
-  function handleEditProduct(product) { setProductEditando(product); }
-  function handleCancelEditProduct() { setProductEditando(null); }
 
   return (
     <View style={styles.container}>

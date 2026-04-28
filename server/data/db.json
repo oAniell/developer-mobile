@@ -1,0 +1,23 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "zezinho testador",
+      "email": "teste@senai.com"
+    }
+  ],
+  "products": [
+    {
+      "id": 1,
+      "name": "vsvsv",
+      "price": 50,
+      "description": "teste"
+    },
+    {
+      "id": 2,
+      "name": "teste",
+      "price": 66,
+      "description": "testee desc"
+    }
+  ]
+}
