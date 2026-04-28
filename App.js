@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Text, View, FlatList, TouchableOpacity, Alert } from 'react-native';
 import styles from './styles/styles';
 import CardUser from './components/users/cardUser';
@@ -7,6 +8,8 @@ import CardProduct from './components/products/cardProduct';
 import CreateProduct from './components/products/createProduct';
 
 export default function App() {
+  const [users, setUsers] = useState([]);
+  const [products, setProducts] = useState([]);
   const [users, setUsers] = useState([]);
   const [products, setProducts] = useState([]);
   const [nextIdUser, setNextIdUser] = useState(1);
@@ -46,17 +49,12 @@ export default function App() {
   function handleUpdateUser(userAtualizado) {
     setUsers(users.map(u => u.id === userAtualizado.id ? userAtualizado : u));
     setUserEditando(null);
-
-    fetch(`http://localhost:3000/users/${userAtualizado.id}`, {
+    fetch(`http://localhost:3001/users/${userAtualizado.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(userAtualizado)
     })
-      .then(response => {
-        if (!response.ok) throw new Error('Erro ao atualizar usuário');
-        return response.json();
-      })
-      .then(data => console.log('Usuário atualizado:', data))
+      .then(r => { if (!r.ok) throw new Error('Erro ao atualizar usuário'); return r.json(); })
       .catch(error => Alert.alert('Erro', error.message));
   }
 
@@ -120,12 +118,10 @@ export default function App() {
     setUserEditando(null);
   }
 
-  function handleEditProduct(product) {
-    setProductEditando(product);
-  }
-
-  function handleCancelEditProduct() {
-    setProductEditando(null);
+  // --- Produtos ---
+  function handleCreateProduct(newProduct) {
+    setProducts([...products, newProduct]);
+    setNextIdProduct(nextIdProduct + 1);
   }
 
   function handleUpdateProduct(productAtualizado) {
@@ -154,7 +150,6 @@ export default function App() {
     <View style={styles.container}>
       <Text style={styles.title}>Cadastros</Text>
 
-      {/* Abas de Navegação */}
       <View style={styles.tabContainer}>
         <TouchableOpacity
           style={[styles.tabButton, activeTab === 'user' ? styles.tabButtonActive : styles.tabButtonInactive]}
@@ -174,9 +169,7 @@ export default function App() {
         </TouchableOpacity>
       </View>
 
-      {/* Layout lado a lado */}
       <View style={styles.mainContent}>
-        {/* Painel Esquerdo - Formulário */}
         <View style={styles.leftPanel}>
           <Text style={styles.sectionTitle}>
             {activeTab === 'user'
@@ -192,17 +185,16 @@ export default function App() {
               nextIdUser={nextIdUser}
             />
           ) : (
-            <CreateProduct 
-              onCreateProduct={handleCreateProduct} 
+            <CreateProduct
+              onCreateProduct={handleCreateProduct}
               onUpdateProduct={handleUpdateProduct}
               productEditando={productEditando}
               onCancelEdit={handleCancelEditProduct}
-              nextIdProduct={nextIdProduct} 
+              nextIdProduct={nextIdProduct}
             />
           )}
         </View>
 
-        {/* Painel Direito - Lista */}
         <View style={styles.rightPanel}>
           <Text style={styles.sectionTitle}>
             {activeTab === 'user' ? 'Usuários Cadastrados' : 'Produtos Cadastrados'}
@@ -215,7 +207,7 @@ export default function App() {
                 <CardUser
                   props={item}
                   onEdit={() => handleEditUser(item)}
-                  onDelete={() => hadleDeleteUser(item.id)}
+                  onDelete={() => handleDeleteUser(item.id)}
                 />
               )}
               style={styles.listContainer}
@@ -225,9 +217,9 @@ export default function App() {
               data={products}
               keyExtractor={(item) => String(item.id)}
               renderItem={({ item }) => (
-                <CardProduct 
-                  props={item} 
-                  onDelete={() => hadleDeleteProduto(item.id)}
+                <CardProduct
+                  props={item}
+                  onDelete={() => handleDeleteProduct(item.id)}
                   onEdit={() => handleEditProduct(item)}
                 />
               )}
