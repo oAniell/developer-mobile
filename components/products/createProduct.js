@@ -20,13 +20,6 @@ export default function CreateProduct({ onCreateProduct, onUpdateProduct, produc
         }
     }, [productEditando]);
 
-    useEffect(() => {
-        fetch('http://localhost:3000/products')
-            .then(response => response.json())
-            .then(data => console.log('Produtos existentes:', data))
-            .catch(error => console.error('Erro ao buscar produtos:', error));
-    }, []);
-
     function validate() {
         const newErrors = {};
         if (!nome.trim())
@@ -67,7 +60,7 @@ export default function CreateProduct({ onCreateProduct, onUpdateProduct, produc
             setDescricao('');
             setErrors({});
 
-            fetch('http://localhost:3000/products', {
+            fetch('http://localhost:3001/products', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(newProduct)

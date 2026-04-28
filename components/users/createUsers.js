@@ -1,6 +1,6 @@
 import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
 import styles from '../../styles/styles';
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function CreateUsers({ 
   onCreateUser, 
@@ -23,13 +23,6 @@ export default function CreateUsers({
       setEmail('');
     }
   }, [userEditando]);
-
-  useEffect(() => {
-    fetch('http://localhost:3000/users')
-      .then(response => response.json())
-      .then(data => console.log('Usuários existentes:', data))
-      .catch(error => console.error('Erro ao buscar usuários:', error));
-  }, []);
 
   function validate() {
     const newErrors = {};
@@ -61,7 +54,7 @@ export default function CreateUsers({
     setEmail('');
     setErrors({});
     
-    fetch('http://localhost:3000/users', {
+    fetch('http://localhost:3001/users', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newUser)
