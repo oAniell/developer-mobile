@@ -2,22 +2,16 @@
   "users": [
     {
       "id": 1,
-      "name": "zezinho testador",
-      "email": "teste@senai.com"
+      "name": "testador QA atualizado",
+      "email": "teste@wiipo.com"
     }
   ],
   "products": [
     {
       "id": 1,
-      "name": "vsvsv",
+      "name": "edit",
       "price": 50,
       "description": "teste"
-    },
-    {
-      "id": 2,
-      "name": "teste",
-      "price": 66,
-      "description": "testee desc"
     }
   ]
 }
