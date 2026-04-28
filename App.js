@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useState, useEffect } from 'react';
 import { Text, View, FlatList, TouchableOpacity, Alert } from 'react-native';
 import styles from './styles/styles';
 import CardUser from './components/users/cardUser';
@@ -8,8 +7,6 @@ import CardProduct from './components/products/cardProduct';
 import CreateProduct from './components/products/createProduct';
 
 export default function App() {
-  const [users, setUsers] = useState([]);
-  const [products, setProducts] = useState([]);
   const [users, setUsers] = useState([]);
   const [products, setProducts] = useState([]);
   const [nextIdUser, setNextIdUser] = useState(1);
@@ -49,7 +46,7 @@ export default function App() {
   function handleUpdateUser(userAtualizado) {
     setUsers(users.map(u => u.id === userAtualizado.id ? userAtualizado : u));
     setUserEditando(null);
-    fetch(`http://localhost:3001/users/${userAtualizado.id}`, {
+    fetch(`http://localhost:3000/users/${userAtualizado.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(userAtualizado)
@@ -58,7 +55,7 @@ export default function App() {
       .catch(error => Alert.alert('Erro', error.message));
   }
 
-  function hadleDeleteProduto(id) {
+  function handleDeleteProduct(id) {
     Alert.alert(
       'Confirmar Exclusão',
       'Tem certeza que deseja excluir este produto?',
@@ -84,7 +81,7 @@ export default function App() {
     );
   }
 
-  function hadleDeleteUser(id) {
+  function handleDeleteUser(id) {
     Alert.alert(
       'Confirmar Exclusão',
       'Tem certeza que deseja excluir este usuário?',
@@ -141,9 +138,12 @@ export default function App() {
       .catch(error => Alert.alert('Erro', error.message));
   }
 
-  function handleCreateProduct(newProduct) {
-    setProducts([...products, newProduct]);
-    setNextIdProduct(nextIdProduct + 1);
+  function handleEditProduct(product) {
+    setProductEditando(product);
+  }
+
+  function handleCancelEditProduct() {
+    setProductEditando(null);
   }
 
   return (
