@@ -1,32 +1,49 @@
 const express = require('express');
 const router = express.Router();
+const fs = require('fs');
+const path = require('path');
 
-const users = [];
+const DB_PATH = path.join(__dirname, '../data/db.json');
+
+function readDb() {
+  return JSON.parse(fs.readFileSync(DB_PATH, 'utf-8'));
+}
+
+function writeDb(data) {
+  fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
+}
 
 router.get('/', (_req, res) => {
-  res.json(users);
+  const db = readDb();
+  res.json(db.users);
 });
 
 router.post('/', (req, res) => {
+  const db = readDb();
   const user = req.body;
-  users.push(user);
+  db.users.push(user);
+  writeDb(db);
   res.status(201).json(user);
 });
 
 router.put('/:id', (req, res) => {
+  const db = readDb();
   const id = parseInt(req.params.id);
-  const index = users.findIndex(u => u.id === id);
+  const index = db.users.findIndex(u => parseInt(u.id) === id);
   if (index === -1) return res.status(404).json({ error: 'Usuário não encontrado' });
-  users[index] = { ...users[index], ...req.body };
-  res.json(users[index]);
+  db.users[index] = { ...db.users[index], ...req.body };
+  writeDb(db);
+  res.json(db.users[index]);
 });
 
 router.delete('/:id', (req, res) => {
+  const db = readDb();
   const id = parseInt(req.params.id);
-  const index = users.findIndex(u => u.id === id);
+  const index = db.users.findIndex(u => parseInt(u.id) === id);
   if (index === -1) return res.status(404).json({ error: 'Usuário não encontrado' });
-  users.splice(index, 1);
-  res.status(204).send();
+  db.users.splice(index, 1);
+  writeDb(db);
+  res.status(200).json({ message: 'Usuário excluído' });
 });
 
 module.exports = router;
