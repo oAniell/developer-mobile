@@ -26,7 +26,7 @@ router.delete('/:id', (req, res) => {
   const index = products.findIndex(p => p.id === id);
   if (index === -1) return res.status(404).json({ error: 'Produto não encontrado' });
   products.splice(index, 1);
-  res.json({ message: 'Produto excluído' });
+  res.status(204).send();
 });
 
 module.exports = router;

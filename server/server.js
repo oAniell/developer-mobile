@@ -7,9 +7,12 @@ const productsRouter = require('./routes/products');
 app.use(cors());
 app.use(express.json());
 
+const usersRouter = require('./routes/users');
+const productsRouter = require('./routes/products');
+
 app.use('/users', usersRouter);
 app.use('/products', productsRouter);
 
-app.listen(3001, () => {
-  console.log('Servidor rodando em http://localhost:3001');
+app.listen(3000, () => {
+  console.log('Servidor rodando em http://localhost:3000');
 });

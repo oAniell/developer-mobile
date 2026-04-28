@@ -26,7 +26,7 @@ router.delete('/:id', (req, res) => {
   const index = users.findIndex(u => u.id === id);
   if (index === -1) return res.status(404).json({ error: 'Usuário não encontrado' });
   users.splice(index, 1);
-  res.json({ message: 'Usuário excluído' });
+  res.status(204).send();
 });
 
 module.exports = router;
