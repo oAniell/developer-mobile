@@ -2,42 +2,39 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import styles from '../../styles/styles';
 
 export default function CardUser({ props, onEdit, onDelete }) {
-  const initials = props.name.split(' ').map(n => n[0]).join('').toUpperCase();
-
-  const handleEdit = () => {
-    console.log('Editar usuário:', props.id);
-    if (onEdit) onEdit();
-  };
-
-  const hadleDeleteUser = () => {
-    console.log('Excluir usuário:', props.id);
-    if (onDelete) onDelete();
-  };
+  const initials = props.name
+    .split(' ')
+    .slice(0, 2)
+    .map(n => n[0])
+    .join('')
+    .toUpperCase();
 
   return (
     <View style={styles.card}>
       <View style={styles.cardAvatar}>
         <Text style={styles.cardAvatarText}>{initials}</Text>
       </View>
+
       <View style={styles.cardInfo}>
-        <Text style={styles.cardId}>#{props.id}</Text>
-        <Text style={styles.cardName}>{props.name}</Text>
-        <Text style={styles.cardEmail}>{props.email}</Text>
+        <Text style={styles.cardId}>ID #{props.id}</Text>
+        <Text style={styles.cardName} numberOfLines={1}>{props.name}</Text>
+        <Text style={styles.cardEmail} numberOfLines={1}>{props.email}</Text>
       </View>
+
       <View style={styles.cardActions}>
-        <TouchableOpacity 
-          style={[styles.actionButton, styles.editButton]} 
-          onPress={handleEdit}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        <TouchableOpacity
+          style={[styles.actionButton, styles.editButton]}
+          onPress={onEdit}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
-          <Text style={styles.actionButtonText}>Editar</Text>
+          <Text style={styles.actionButtonText}>✏️</Text>
         </TouchableOpacity>
-        <TouchableOpacity 
-          style={[styles.actionButton, styles.deleteButton]} 
-          onPress={hadleDeleteUser}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        <TouchableOpacity
+          style={[styles.actionButton, styles.deleteButton]}
+          onPress={onDelete}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
-          <Text style={styles.actionButtonText}>Excluir</Text>
+          <Text style={styles.actionButtonText}>🗑️</Text>
         </TouchableOpacity>
       </View>
     </View>

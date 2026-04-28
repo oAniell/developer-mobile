@@ -1,233 +1,339 @@
 import { useState, useEffect } from 'react';
-import { Text, View, FlatList, TouchableOpacity, Alert } from 'react-native';
-import styles from './styles/styles';
+import {
+  Text, View, FlatList, TouchableOpacity,
+  StatusBar, useWindowDimensions, ScrollView, Alert,
+} from 'react-native';
+import styles, { COLORS } from './styles/styles';
 import CardUser from './components/users/cardUser';
 import CreateUsers from './components/users/createUsers';
 import CardProduct from './components/products/cardProduct';
 import CreateProduct from './components/products/createProduct';
+import ConfirmModal from './components/ConfirmModal';
 
 export default function App() {
+  const { width } = useWindowDimensions();
+  const isDesktop = width >= 768;
+
   const [users, setUsers] = useState([]);
   const [products, setProducts] = useState([]);
   const [nextIdUser, setNextIdUser] = useState(1);
   const [nextIdProduct, setNextIdProduct] = useState(1);
   const [activeTab, setActiveTab] = useState('user');
+  const [mobileView, setMobileView] = useState('list');
   const [userEditando, setUserEditando] = useState(null);
   const [productEditando, setProductEditando] = useState(null);
+  const [confirmModal, setConfirmModal] = useState({ visible: false, message: '', onConfirm: null });
 
-  // Carrega dados da API ao iniciar
   useEffect(() => {
     fetch('http://localhost:3000/users')
       .then(res => res.json())
       .then(data => {
         setUsers(data);
-        if (data.length > 0) {
-          setNextIdUser(Math.max(...data.map(u => u.id)) + 1);
-        }
+        if (data.length > 0) setNextIdUser(Math.max(...data.map(u => u.id)) + 1);
       })
-      .catch(error => console.error('Erro ao carregar usuários:', error));
+      .catch(err => console.error('Erro ao carregar usuários:', err));
 
     fetch('http://localhost:3000/products')
       .then(res => res.json())
       .then(data => {
         setProducts(data);
-        if (data.length > 0) {
-          setNextIdProduct(Math.max(...data.map(p => p.id)) + 1);
-        }
+        if (data.length > 0) setNextIdProduct(Math.max(...data.map(p => p.id)) + 1);
       })
-      .catch(error => console.error('Erro ao carregar produtos:', error));
+      .catch(err => console.error('Erro ao carregar produtos:', err));
   }, []);
 
+  // ─── Handlers ────────────────────────────────────────────
+
   function handleCreateUser(newUser) {
-    setUsers([...users, newUser]);
-    setNextIdUser(nextIdUser + 1);
+    setUsers(prev => [...prev, newUser]);
+    setNextIdUser(n => n + 1);
+    if (!isDesktop) setMobileView('list');
   }
 
   function handleUpdateUser(userAtualizado) {
-    setUsers(users.map(u => u.id === userAtualizado.id ? userAtualizado : u));
+    setUsers(prev => prev.map(u => u.id === userAtualizado.id ? userAtualizado : u));
     setUserEditando(null);
+    if (!isDesktop) setMobileView('list');
     fetch(`http://localhost:3000/users/${userAtualizado.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(userAtualizado)
+      body: JSON.stringify(userAtualizado),
     })
-      .then(r => { if (!r.ok) throw new Error('Erro ao atualizar usuário'); return r.json(); })
-      .catch(error => Alert.alert('Erro', error.message));
-  }
-
-  function handleDeleteProduct(id) {
-    Alert.alert(
-      'Confirmar Exclusão',
-      'Tem certeza que deseja excluir este produto?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Excluir',
-          style: 'destructive',
-          onPress: () => {
-            setProducts(products.filter(p => p.id !== id));
-
-            fetch(`http://localhost:3000/products/${id}`, {
-              method: 'DELETE'
-            })
-              .then(response => {
-                if (!response.ok) throw new Error('Erro ao excluir produto');
-              })
-              .then(() => console.log('Produto excluído:', id))
-              .catch(error => Alert.alert('Erro', error.message));
-          }
-        }
-      ]
-    );
+      .then(r => { if (!r.ok) throw new Error('Erro ao atualizar usuário'); })
+      .catch(err => Alert.alert('Erro', err.message));
   }
 
   function handleDeleteUser(id) {
-    Alert.alert(
-      'Confirmar Exclusão',
-      'Tem certeza que deseja excluir este usuário?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Excluir',
-          style: 'destructive',
-          onPress: () => {
-            setUsers(users.filter(u => u.id !== id));
-
-            fetch(`http://localhost:3000/users/${id}`, {
-              method: 'DELETE'
-            })
-              .then(response => {
-                if (!response.ok) throw new Error('Erro ao excluir usuário');
-              })
-              .then(() => console.log('Usuário excluído:', id))
-              .catch(error => Alert.alert('Erro', error.message));
-          }
-        }
-      ]
-    );
+    setConfirmModal({
+      visible: true,
+      message: 'Tem certeza que deseja excluir este usuário?',
+      onConfirm: () => {
+        setConfirmModal(m => ({ ...m, visible: false }));
+        setUsers(prev => prev.filter(u => u.id !== id));
+        fetch(`http://localhost:3000/users/${id}`, { method: 'DELETE' })
+          .then(r => { if (!r.ok) throw new Error('Erro ao excluir usuário'); })
+          .catch(err => console.error('Erro delete user:', err));
+      },
+    });
   }
 
   function handleEditUser(user) {
     setUserEditando(user);
+    if (!isDesktop) setMobileView('form');
   }
 
-  function handleCancelEdit() {
-    setUserEditando(null);
-  }
-
-  // --- Produtos ---
   function handleCreateProduct(newProduct) {
-    setProducts([...products, newProduct]);
-    setNextIdProduct(nextIdProduct + 1);
+    setProducts(prev => [...prev, newProduct]);
+    setNextIdProduct(n => n + 1);
+    if (!isDesktop) setMobileView('list');
   }
 
   function handleUpdateProduct(productAtualizado) {
-    setProducts(products.map(p => p.id === productAtualizado.id ? productAtualizado : p));
+    setProducts(prev => prev.map(p => p.id === productAtualizado.id ? productAtualizado : p));
     setProductEditando(null);
-
+    if (!isDesktop) setMobileView('list');
     fetch(`http://localhost:3000/products/${productAtualizado.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(productAtualizado)
+      body: JSON.stringify(productAtualizado),
     })
-      .then(response => {
-        if (!response.ok) throw new Error('Erro ao atualizar produto');
-        return response.json();
-      })
-      .then(data => console.log('Produto atualizado:', data))
-      .catch(error => Alert.alert('Erro', error.message));
+      .then(r => { if (!r.ok) throw new Error('Erro ao atualizar produto'); })
+      .catch(err => Alert.alert('Erro', err.message));
+  }
+
+  function handleDeleteProduct(id) {
+    setConfirmModal({
+      visible: true,
+      message: 'Tem certeza que deseja excluir este produto?',
+      onConfirm: () => {
+        setConfirmModal(m => ({ ...m, visible: false }));
+        setProducts(prev => prev.filter(p => p.id !== id));
+        fetch(`http://localhost:3000/products/${id}`, { method: 'DELETE' })
+          .then(r => { if (!r.ok) throw new Error('Erro ao excluir produto'); })
+          .catch(err => console.error('Erro delete product:', err));
+      },
+    });
   }
 
   function handleEditProduct(product) {
     setProductEditando(product);
+    if (!isDesktop) setMobileView('form');
   }
 
-  function handleCancelEditProduct() {
+  function handleCancelEdit() {
+    setUserEditando(null);
     setProductEditando(null);
+    if (!isDesktop) setMobileView('list');
   }
+
+  function switchTab(tab) {
+    setActiveTab(tab);
+    setUserEditando(null);
+    setProductEditando(null);
+    setMobileView('list');
+  }
+
+  // ─── Derived ─────────────────────────────────────────────
+
+  const isUser = activeTab === 'user';
+  const listCount = isUser ? users.length : products.length;
+
+  // ─── Render ──────────────────────────────────────────────
+
+  const formContent = isUser ? (
+    <CreateUsers
+      onCreateUser={handleCreateUser}
+      onUpdateUser={handleUpdateUser}
+      userEditando={userEditando}
+      onCancelEdit={handleCancelEdit}
+      nextIdUser={nextIdUser}
+    />
+  ) : (
+    <CreateProduct
+      onCreateProduct={handleCreateProduct}
+      onUpdateProduct={handleUpdateProduct}
+      productEditando={productEditando}
+      onCancelEdit={handleCancelEdit}
+      nextIdProduct={nextIdProduct}
+    />
+  );
+
+  const listContent = (
+    <>
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionTitle}>
+          {isUser ? 'Usuários Cadastrados' : 'Produtos Cadastrados'}
+        </Text>
+        <Text style={styles.sectionCount}>
+          {listCount} {listCount === 1 ? 'registro' : 'registros'}
+        </Text>
+      </View>
+
+      {isUser ? (
+        <FlatList
+          data={users}
+          keyExtractor={item => String(item.id)}
+          renderItem={({ item }) => (
+            <CardUser
+              props={item}
+              onEdit={() => handleEditUser(item)}
+              onDelete={() => handleDeleteUser(item.id)}
+            />
+          )}
+          showsVerticalScrollIndicator={false}
+          ListEmptyComponent={
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyIcon}>👤</Text>
+              <Text style={styles.emptyTitle}>Nenhum usuário ainda</Text>
+              <Text style={styles.emptySubtitle}>
+                {isDesktop ? 'Crie o primeiro pelo formulário ao lado' : 'Toque em "+ Novo" para começar'}
+              </Text>
+            </View>
+          }
+        />
+      ) : (
+        <FlatList
+          data={products}
+          keyExtractor={item => String(item.id)}
+          renderItem={({ item }) => (
+            <CardProduct
+              props={item}
+              onDelete={() => handleDeleteProduct(item.id)}
+              onEdit={() => handleEditProduct(item)}
+            />
+          )}
+          showsVerticalScrollIndicator={false}
+          ListEmptyComponent={
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyIcon}>📦</Text>
+              <Text style={styles.emptyTitle}>Nenhum produto ainda</Text>
+              <Text style={styles.emptySubtitle}>
+                {isDesktop ? 'Crie o primeiro pelo formulário ao lado' : 'Toque em "+ Novo" para começar'}
+              </Text>
+            </View>
+          }
+        />
+      )}
+    </>
+  );
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Cadastros</Text>
+      <StatusBar barStyle="light-content" backgroundColor={COLORS.bg} />
 
+      {/* Header */}
+      <View style={styles.header}>
+        <View style={styles.headerLeft}>
+          <View style={styles.headerDot} />
+          <Text style={styles.title}>Cadastros</Text>
+        </View>
+        <View style={styles.headerBadge}>
+          <Text style={styles.headerBadgeText}>
+            {users.length} usuários · {products.length} produtos
+          </Text>
+        </View>
+      </View>
+
+      {/* Tabs principais */}
       <View style={styles.tabContainer}>
         <TouchableOpacity
-          style={[styles.tabButton, activeTab === 'user' ? styles.tabButtonActive : styles.tabButtonInactive]}
-          onPress={() => setActiveTab('user')}
+          style={[styles.tabButton, isUser ? styles.tabButtonActive : styles.tabButtonInactive]}
+          onPress={() => switchTab('user')}
         >
-          <Text style={[styles.tabText, activeTab === 'user' ? styles.tabTextActive : styles.tabTextInactive]}>
+          <Text style={styles.tabIcon}>👤</Text>
+          <Text style={[styles.tabText, isUser ? styles.tabTextActive : styles.tabTextInactive]}>
             Usuários
           </Text>
+          <Text style={[styles.tabCount, isUser ? styles.tabCountActive : styles.tabCountInactive]}>
+            {users.length}
+          </Text>
         </TouchableOpacity>
+
         <TouchableOpacity
-          style={[styles.tabButton, activeTab === 'product' ? styles.tabButtonActive : styles.tabButtonInactive]}
-          onPress={() => setActiveTab('product')}
+          style={[styles.tabButton, !isUser ? styles.tabButtonActive : styles.tabButtonInactive]}
+          onPress={() => switchTab('product')}
         >
-          <Text style={[styles.tabText, activeTab === 'product' ? styles.tabTextActive : styles.tabTextInactive]}>
+          <Text style={styles.tabIcon}>📦</Text>
+          <Text style={[styles.tabText, !isUser ? styles.tabTextActive : styles.tabTextInactive]}>
             Produtos
           </Text>
+          <Text style={[styles.tabCount, !isUser ? styles.tabCountActive : styles.tabCountInactive]}>
+            {products.length}
+          </Text>
         </TouchableOpacity>
       </View>
 
-      <View style={styles.mainContent}>
-        <View style={styles.leftPanel}>
-          <Text style={styles.sectionTitle}>
-            {activeTab === 'user'
-              ? (userEditando ? 'Editar Usuário' : 'Novo Usuário')
-              : (productEditando ? 'Editar Produto' : 'Novo Produto')}
-          </Text>
-          {activeTab === 'user' ? (
-            <CreateUsers
-              onCreateUser={handleCreateUser}
-              onUpdateUser={handleUpdateUser}
-              userEditando={userEditando}
-              onCancelEdit={handleCancelEdit}
-              nextIdUser={nextIdUser}
-            />
-          ) : (
-            <CreateProduct
-              onCreateProduct={handleCreateProduct}
-              onUpdateProduct={handleUpdateProduct}
-              productEditando={productEditando}
-              onCancelEdit={handleCancelEditProduct}
-              nextIdProduct={nextIdProduct}
-            />
-          )}
+      {/* Mobile: sub-nav Lista / Formulário */}
+      {!isDesktop && (
+        <View style={styles.mobileSubNav}>
+          <TouchableOpacity
+            style={[styles.mobileSubNavBtn, mobileView === 'list' && styles.mobileSubNavBtnActive]}
+            onPress={() => { setMobileView('list'); setUserEditando(null); setProductEditando(null); }}
+          >
+            <Text style={[styles.mobileSubNavText, mobileView === 'list' && styles.mobileSubNavTextActive]}>
+              Lista
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.mobileSubNavBtn, mobileView === 'form' && styles.mobileSubNavBtnActive]}
+            onPress={() => setMobileView('form')}
+          >
+            <Text style={[styles.mobileSubNavText, mobileView === 'form' && styles.mobileSubNavTextActive]}>
+              {userEditando || productEditando ? '✏️ Editar' : '+ Novo'}
+            </Text>
+          </TouchableOpacity>
         </View>
+      )}
 
-        <View style={styles.rightPanel}>
-          <Text style={styles.sectionTitle}>
-            {activeTab === 'user' ? 'Usuários Cadastrados' : 'Produtos Cadastrados'}
-          </Text>
-          {activeTab === 'user' ? (
-            <FlatList
-              data={users}
-              keyExtractor={(item) => String(item.id)}
-              renderItem={({ item }) => (
-                <CardUser
-                  props={item}
-                  onEdit={() => handleEditUser(item)}
-                  onDelete={() => handleDeleteUser(item.id)}
-                />
-              )}
-              style={styles.listContainer}
-            />
+      {/* Conteúdo principal */}
+      {isDesktop ? (
+        <View style={styles.mainContent}>
+          {/* Painel esquerdo — formulário */}
+          <ScrollView
+            style={styles.leftPanel}
+            contentContainerStyle={styles.mobilePanelContent}
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>
+                {isUser
+                  ? (userEditando ? 'Editar Usuário' : 'Novo Usuário')
+                  : (productEditando ? 'Editar Produto' : 'Novo Produto')}
+              </Text>
+            </View>
+            {formContent}
+          </ScrollView>
+
+          {/* Painel direito — lista */}
+          <View style={styles.rightPanel}>
+            {listContent}
+          </View>
+        </View>
+      ) : (
+        <View style={styles.mainContent}>
+          {mobileView === 'list' ? (
+            <View style={styles.mobilePanel}>
+              {listContent}
+            </View>
           ) : (
-            <FlatList
-              data={products}
-              keyExtractor={(item) => String(item.id)}
-              renderItem={({ item }) => (
-                <CardProduct
-                  props={item}
-                  onDelete={() => handleDeleteProduct(item.id)}
-                  onEdit={() => handleEditProduct(item)}
-                />
-              )}
-              style={styles.listContainer}
-            />
+            <ScrollView
+              style={styles.mobilePanel}
+              contentContainerStyle={styles.mobilePanelContent}
+              showsVerticalScrollIndicator={false}
+            >
+              {formContent}
+            </ScrollView>
           )}
         </View>
-      </View>
+      )}
+
+      <ConfirmModal
+        visible={confirmModal.visible}
+        title="Confirmar Exclusão"
+        message={confirmModal.message}
+        onConfirm={confirmModal.onConfirm}
+        onCancel={() => setConfirmModal(m => ({ ...m, visible: false }))}
+      />
     </View>
   );
 }
