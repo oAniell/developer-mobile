@@ -12,6 +12,12 @@
       "name": "edit",
       "price": 50,
       "description": "teste"
+    },
+    {
+      "id": 3,
+      "name": "Camiseta graits",
+      "price": 0,
+      "description": "a"
     }
   ]
 }
