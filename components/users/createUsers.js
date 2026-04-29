@@ -1,4 +1,4 @@
-import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 import styles, { COLORS } from '../../styles/styles';
 import { useState, useEffect } from 'react';
 
@@ -47,15 +47,7 @@ export default function CreateUsers({
     if (userEditando) {
       onUpdateUser({ id: userEditando.id, name: nome.trim(), email: email.trim() });
     } else {
-      const newUser = { id: nextIdUser, name: nome.trim(), email: email.trim() };
-      onCreateUser(newUser);
-      fetch('http://localhost:3000/users', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newUser),
-      })
-        .then(r => { if (!r.ok) throw new Error('Erro ao criar usuário'); return r.json(); })
-        .catch(error => Alert.alert('Erro', error.message));
+      onCreateUser({ id: nextIdUser, name: nome.trim(), email: email.trim() });
     }
 
     setNome('');

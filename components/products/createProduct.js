@@ -1,4 +1,4 @@
-import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 import styles, { COLORS } from '../../styles/styles';
 import { useEffect, useState } from 'react';
 
@@ -56,20 +56,12 @@ export default function CreateProduct({
         description: descricao.trim(),
       });
     } else {
-      const newProduct = {
+      onCreateProduct({
         id: nextIdProduct,
         name: nome.trim(),
         price: parseFloat(preco.trim()),
         description: descricao.trim(),
-      };
-      onCreateProduct(newProduct);
-      fetch('http://localhost:3000/products', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newProduct),
-      })
-        .then(r => { if (!r.ok) throw new Error('Erro ao criar produto'); return r.json(); })
-        .catch(error => Alert.alert('Erro', error.message));
+      });
     }
 
     setNome('');

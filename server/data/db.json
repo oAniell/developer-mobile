@@ -3,21 +3,26 @@
     {
       "id": 1,
       "name": "testador QA atualizado",
-      "email": "teste@wiipo.com"
+      "email": "teste@senai.com"
+    },
+    {
+      "id": 2,
+      "name": "Testador master",
+      "email": "email@teste.com"
     }
   ],
   "products": [
     {
       "id": 1,
-      "name": "edit",
+      "name": "Caderno",
       "price": 50,
-      "description": "teste"
+      "description": "teste de produto"
     },
     {
       "id": 3,
       "name": "Camiseta graits",
       "price": 0,
-      "description": "a"
+      "description": "testandoooo"
     }
   ]
 }

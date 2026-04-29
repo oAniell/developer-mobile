@@ -48,6 +48,13 @@ export default function App() {
     setUsers(prev => [...prev, newUser]);
     setNextIdUser(n => n + 1);
     if (!isDesktop) setMobileView('list');
+    fetch('http://localhost:3000/users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newUser),
+    })
+      .then(r => { if (!r.ok) throw new Error('Erro ao criar usuário'); return r.json(); })
+      .catch(err => Alert.alert('Erro', err.message));
   }
 
   function handleUpdateUser(userAtualizado) {
@@ -86,6 +93,13 @@ export default function App() {
     setProducts(prev => [...prev, newProduct]);
     setNextIdProduct(n => n + 1);
     if (!isDesktop) setMobileView('list');
+    fetch('http://localhost:3000/products', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newProduct),
+    })
+      .then(r => { if (!r.ok) throw new Error('Erro ao criar produto'); return r.json(); })
+      .catch(err => Alert.alert('Erro', err.message));
   }
 
   function handleUpdateProduct(productAtualizado) {
