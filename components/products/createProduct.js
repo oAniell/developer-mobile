@@ -7,7 +7,6 @@ export default function CreateProduct({
   onUpdateProduct,
   productEditando,
   onCancelEdit,
-  nextIdProduct,
 }) {
   const [nome, setNome] = useState('');
   const [preco, setPreco] = useState('');
@@ -57,7 +56,6 @@ export default function CreateProduct({
       });
     } else {
       onCreateProduct({
-        id: nextIdProduct,
         name: nome.trim(),
         price: parseFloat(preco.trim()),
         description: descricao.trim(),
@@ -90,7 +88,7 @@ export default function CreateProduct({
         <View>
           <Text style={styles.formTitle}>{isEditing ? 'Editar Produto' : 'Novo Produto'}</Text>
           <Text style={styles.formSubtitle}>
-            {isEditing ? `Editando #${productEditando.id}` : 'Preencha os dados abaixo'}
+            {isEditing ? `Editando produto` : 'Preencha os dados abaixo'}
           </Text>
         </View>
       </View>

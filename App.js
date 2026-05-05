@@ -10,14 +10,13 @@ import CardProduct from './components/products/cardProduct';
 import CreateProduct from './components/products/createProduct';
 import ConfirmModal from './components/ConfirmModal';
 
+
 export default function App() {
   const { width } = useWindowDimensions();
   const isDesktop = width >= 768;
 
   const [users, setUsers] = useState([]);
   const [products, setProducts] = useState([]);
-  const [nextIdUser, setNextIdUser] = useState(1);
-  const [nextIdProduct, setNextIdProduct] = useState(1);
   const [activeTab, setActiveTab] = useState('user');
   const [mobileView, setMobileView] = useState('list');
   const [userEditando, setUserEditando] = useState(null);
@@ -27,46 +26,43 @@ export default function App() {
   useEffect(() => {
     fetch('http://localhost:3000/users')
       .then(res => res.json())
-      .then(data => {
-        setUsers(data);
-        if (data.length > 0) setNextIdUser(Math.max(...data.map(u => u.id)) + 1);
-      })
+      .then(data => setUsers(data))
       .catch(err => console.error('Erro ao carregar usuários:', err));
 
     fetch('http://localhost:3000/products')
       .then(res => res.json())
-      .then(data => {
-        setProducts(data);
-        if (data.length > 0) setNextIdProduct(Math.max(...data.map(p => p.id)) + 1);
-      })
+      .then(data => setProducts(data))
       .catch(err => console.error('Erro ao carregar produtos:', err));
   }, []);
 
   // ─── Handlers ────────────────────────────────────────────
 
   function handleCreateUser(newUser) {
-    setUsers(prev => [...prev, newUser]);
-    setNextIdUser(n => n + 1);
-    if (!isDesktop) setMobileView('list');
     fetch('http://localhost:3000/users', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newUser),
     })
       .then(r => { if (!r.ok) throw new Error('Erro ao criar usuário'); return r.json(); })
+      .then(created => {
+        setUsers(prev => [...prev, created]);
+        if (!isDesktop) setMobileView('list');
+      })
       .catch(err => Alert.alert('Erro', err.message));
   }
 
   function handleUpdateUser(userAtualizado) {
-    setUsers(prev => prev.map(u => u.id === userAtualizado.id ? userAtualizado : u));
-    setUserEditando(null);
-    if (!isDesktop) setMobileView('list');
     fetch(`http://localhost:3000/users/${userAtualizado.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(userAtualizado),
     })
-      .then(r => { if (!r.ok) throw new Error('Erro ao atualizar usuário'); })
+      .then(r => { if (!r.ok) throw new Error('Erro ao atualizar usuário'); return r.json(); })
+      .then(updated => {
+        setUsers(prev => prev.map(u => u.id === updated.id ? updated : u));
+        setUserEditando(null);
+        if (!isDesktop) setMobileView('list');
+      })
       .catch(err => Alert.alert('Erro', err.message));
   }
 
@@ -76,9 +72,9 @@ export default function App() {
       message: 'Tem certeza que deseja excluir este usuário?',
       onConfirm: () => {
         setConfirmModal(m => ({ ...m, visible: false }));
-        setUsers(prev => prev.filter(u => u.id !== id));
         fetch(`http://localhost:3000/users/${id}`, { method: 'DELETE' })
           .then(r => { if (!r.ok) throw new Error('Erro ao excluir usuário'); })
+          .then(() => setUsers(prev => prev.filter(u => u.id !== id)))
           .catch(err => console.error('Erro delete user:', err));
       },
     });
@@ -90,28 +86,31 @@ export default function App() {
   }
 
   function handleCreateProduct(newProduct) {
-    setProducts(prev => [...prev, newProduct]);
-    setNextIdProduct(n => n + 1);
-    if (!isDesktop) setMobileView('list');
     fetch('http://localhost:3000/products', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newProduct),
     })
       .then(r => { if (!r.ok) throw new Error('Erro ao criar produto'); return r.json(); })
+      .then(created => {
+        setProducts(prev => [...prev, created]);
+        if (!isDesktop) setMobileView('list');
+      })
       .catch(err => Alert.alert('Erro', err.message));
   }
 
   function handleUpdateProduct(productAtualizado) {
-    setProducts(prev => prev.map(p => p.id === productAtualizado.id ? productAtualizado : p));
-    setProductEditando(null);
-    if (!isDesktop) setMobileView('list');
     fetch(`http://localhost:3000/products/${productAtualizado.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(productAtualizado),
     })
-      .then(r => { if (!r.ok) throw new Error('Erro ao atualizar produto'); })
+      .then(r => { if (!r.ok) throw new Error('Erro ao atualizar produto'); return r.json(); })
+      .then(updated => {
+        setProducts(prev => prev.map(p => p.id === updated.id ? updated : p));
+        setProductEditando(null);
+        if (!isDesktop) setMobileView('list');
+      })
       .catch(err => Alert.alert('Erro', err.message));
   }
 
@@ -121,9 +120,9 @@ export default function App() {
       message: 'Tem certeza que deseja excluir este produto?',
       onConfirm: () => {
         setConfirmModal(m => ({ ...m, visible: false }));
-        setProducts(prev => prev.filter(p => p.id !== id));
         fetch(`http://localhost:3000/products/${id}`, { method: 'DELETE' })
           .then(r => { if (!r.ok) throw new Error('Erro ao excluir produto'); })
+          .then(() => setProducts(prev => prev.filter(p => p.id !== id)))
           .catch(err => console.error('Erro delete product:', err));
       },
     });
@@ -160,7 +159,6 @@ export default function App() {
       onUpdateUser={handleUpdateUser}
       userEditando={userEditando}
       onCancelEdit={handleCancelEdit}
-      nextIdUser={nextIdUser}
     />
   ) : (
     <CreateProduct
@@ -168,7 +166,6 @@ export default function App() {
       onUpdateProduct={handleUpdateProduct}
       productEditando={productEditando}
       onCancelEdit={handleCancelEdit}
-      nextIdProduct={nextIdProduct}
     />
   );
 
