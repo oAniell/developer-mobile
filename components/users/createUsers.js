@@ -7,7 +7,6 @@ export default function CreateUsers({
   onUpdateUser,
   userEditando,
   onCancelEdit,
-  nextIdUser,
 }) {
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
@@ -47,7 +46,7 @@ export default function CreateUsers({
     if (userEditando) {
       onUpdateUser({ id: userEditando.id, name: nome.trim(), email: email.trim() });
     } else {
-      onCreateUser({ id: nextIdUser, name: nome.trim(), email: email.trim() });
+      onCreateUser({ name: nome.trim(), email: email.trim() });
     }
 
     setNome('');
@@ -74,7 +73,7 @@ export default function CreateUsers({
         <View>
           <Text style={styles.formTitle}>{isEditing ? 'Editar Usuário' : 'Novo Usuário'}</Text>
           <Text style={styles.formSubtitle}>
-            {isEditing ? `Editando #${userEditando.id}` : 'Preencha os dados abaixo'}
+            {isEditing ? `Editando usuário` : 'Preencha os dados abaixo'}
           </Text>
         </View>
       </View>

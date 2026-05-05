@@ -1,38 +1,43 @@
 const express = require('express');
 const router = express.Router();
-const { readDb, writeDb } = require('../data/db');
+const { getUsers, createUser, updateUser, deleteUser } = require('../data/db');
 
-router.get('/', (_req, res) => {
-  const db = readDb();
-  res.json(db.users);
+router.get('/', async (_req, res) => {
+  try {
+    const users = await getUsers();
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-router.post('/', (req, res) => {
-  const db = readDb();
-  const user = req.body;
-  db.users.push(user);
-  writeDb(db);
-  res.status(201).json(user);
+router.post('/', async (req, res) => {
+  try {
+    const user = await createUser(req.body);
+    res.status(201).json(user);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-router.put('/:id', (req, res) => {
-  const db = readDb();
-  const id = parseInt(req.params.id);
-  const index = db.users.findIndex(u => parseInt(u.id) === id);
-  if (index === -1) return res.status(404).json({ error: 'Usuário não encontrado' });
-  db.users[index] = { ...db.users[index], ...req.body };
-  writeDb(db);
-  res.json(db.users[index]);
+router.put('/:id', async (req, res) => {
+  try {
+    const updated = await updateUser(req.params.id, req.body);
+    if (!updated) return res.status(404).json({ error: 'Usuário não encontrado' });
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-router.delete('/:id', (req, res) => {
-  const db = readDb();
-  const id = parseInt(req.params.id);
-  const index = db.users.findIndex(u => parseInt(u.id) === id);
-  if (index === -1) return res.status(404).json({ error: 'Usuário não encontrado' });
-  db.users.splice(index, 1);
-  writeDb(db);
-  res.status(200).json({ message: 'Usuário excluído' });
+router.delete('/:id', async (req, res) => {
+  try {
+    const deleted = await deleteUser(req.params.id);
+    if (!deleted) return res.status(404).json({ error: 'Usuário não encontrado' });
+    res.status(200).json({ message: 'Usuário excluído' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 module.exports = router;
