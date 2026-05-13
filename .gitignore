@@ -36,6 +36,9 @@ yarn-error.*
 # Firebase service account key (never commit this!)
 server/serviceAccountKey.json
 
+# Server environment variables
+server/.env
+
 # typescript
 *.tsbuildinfo
 
