@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "aula_02",
-    "slug": "aula_02",
+    "name": "products-users",
+    "slug": "products-users",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
