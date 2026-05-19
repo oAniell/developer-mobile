@@ -4,7 +4,7 @@ import { jwtDecode } from 'jwt-decode';
 
 const AuthContext = createContext();
 
-const API = 'http://localhost:3000';
+const API = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
 
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(null);
