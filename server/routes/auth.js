@@ -12,6 +12,12 @@ router.post('/register', async (req, res) => {
   try {
     const { nome, email, senha, perfil } = req.body;
 
+    if (!nome || !nome.trim()) return res.status(400).json({ mensagem: 'nome é obrigatório' });
+    if (nome.trim().length > 100) return res.status(400).json({ mensagem: 'nome inválido' });
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.status(400).json({ mensagem: 'email inválido' });
+    if (!senha || senha.length < 8) return res.status(400).json({ mensagem: 'senha deve ter no mínimo 8 caracteres' });
+    if (perfil !== 'admin' && perfil !== 'usuario') return res.status(400).json({ mensagem: "Perfil inválido. Use 'admin' ou 'usuario'" });
+
     // Verifica se email já existe
     const existing = await db.collection('auth_users').where('email', '==', email).get();
     if (!existing.empty) {

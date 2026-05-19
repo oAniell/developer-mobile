@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "Bash(node seed-admin.js)",
+      "Bash(node server.js)",
+      "Bash(npx expo *)",
+      "Bash(netstat -ano)",
+      "Bash(findstr :8081)",
+      "Bash(findstr LISTENING)",
+      "PowerShell(Get-NetTCPConnection *)",
+      "Bash(node -e ' *)"
+    ]
+  }
+}

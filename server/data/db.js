@@ -56,4 +56,11 @@ async function deleteProduct(id) {
   return true;
 }
 
-module.exports = { getUsers, createUser, updateUser, deleteUser, getProducts, createProduct, updateProduct, deleteProduct };
+async function getProductById(id) {
+  const ref = db.collection('products').doc(id);
+  const doc = await ref.get();
+  if (!doc.exists) return null;
+  return { id: doc.id, ...doc.data() };
+}
+
+module.exports = { getUsers, createUser, updateUser, deleteUser, getProducts, createProduct, updateProduct, deleteProduct, getProductById };

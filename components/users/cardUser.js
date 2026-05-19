@@ -1,7 +1,7 @@
 import { View, Text, TouchableOpacity } from 'react-native';
 import styles from '../../styles/styles';
 
-export default function CardUser({ props, onEdit, onDelete }) {
+export default function CardUser({ props, onEdit, onDelete, podeEditar = true }) {
   const initials = props.name
     .split(' ')
     .slice(0, 2)
@@ -21,22 +21,24 @@ export default function CardUser({ props, onEdit, onDelete }) {
         <Text style={styles.cardEmail} numberOfLines={1}>{props.email}</Text>
       </View>
 
-      <View style={styles.cardActions}>
-        <TouchableOpacity
-          style={[styles.actionButton, styles.editButton]}
-          onPress={onEdit}
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-        >
-          <Text style={styles.actionButtonText}>✏️</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.actionButton, styles.deleteButton]}
-          onPress={onDelete}
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-        >
-          <Text style={styles.actionButtonText}>🗑️</Text>
-        </TouchableOpacity>
-      </View>
+      {podeEditar && (
+        <View style={styles.cardActions}>
+          <TouchableOpacity
+            style={[styles.actionButton, styles.editButton]}
+            onPress={onEdit}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <Text style={styles.actionButtonText}>✏️</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.actionButton, styles.deleteButton]}
+            onPress={onDelete}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <Text style={styles.actionButtonText}>🗑️</Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 }

@@ -7,9 +7,11 @@ export default function CreateUsers({
   onUpdateUser,
   userEditando,
   onCancelEdit,
+  podeGerenciar = true,
 }) {
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
+  const [perfil, setPerfil] = useState('usuario');
   const [errors, setErrors] = useState({});
   const [focusedField, setFocusedField] = useState(null);
 
@@ -20,6 +22,7 @@ export default function CreateUsers({
     } else {
       setNome('');
       setEmail('');
+      setPerfil('usuario');
     }
     setErrors({});
   }, [userEditando]);
@@ -46,22 +49,26 @@ export default function CreateUsers({
     if (userEditando) {
       onUpdateUser({ id: userEditando.id, name: nome.trim(), email: email.trim() });
     } else {
-      onCreateUser({ name: nome.trim(), email: email.trim() });
+      onCreateUser({ name: nome.trim(), email: email.trim(), perfil });
     }
 
     setNome('');
     setEmail('');
+    setPerfil('usuario');
     setErrors({});
   }
 
   function handleCancel() {
     setNome('');
     setEmail('');
+    setPerfil('usuario');
     setErrors({});
     if (onCancelEdit) onCancelEdit();
   }
 
   const isEditing = !!userEditando;
+
+  if (!podeGerenciar) return null;
 
   return (
     <View style={styles.form}>
@@ -73,7 +80,7 @@ export default function CreateUsers({
         <View>
           <Text style={styles.formTitle}>{isEditing ? 'Editar Usuário' : 'Novo Usuário'}</Text>
           <Text style={styles.formSubtitle}>
-            {isEditing ? `Editando usuário` : 'Preencha os dados abaixo'}
+            {isEditing ? 'Editando usuário' : 'Uma senha provisória será enviada por email'}
           </Text>
         </View>
       </View>
@@ -123,6 +130,30 @@ export default function CreateUsers({
         />
         {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
       </View>
+
+      {/* Perfil — só na criação */}
+      {!isEditing && (
+        <View style={styles.inputGroup}>
+          <Text style={styles.inputLabel}>PERFIL</Text>
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            {['usuario', 'admin'].map(p => (
+              <TouchableOpacity
+                key={p}
+                style={[
+                  styles.button,
+                  { flex: 1, paddingVertical: 10 },
+                  perfil === p ? styles.buttonPrimary : styles.buttonGhost,
+                ]}
+                onPress={() => setPerfil(p)}
+              >
+                <Text style={perfil === p ? styles.buttonText : styles.buttonText}>
+                  {p === 'admin' ? 'Admin' : 'Usuário'}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+      )}
 
       {/* Buttons */}
       {isEditing ? (
