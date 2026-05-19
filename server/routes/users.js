@@ -20,15 +20,20 @@ router.post('/', autenticar, autorizar('admin'), async (req, res) => {
   try {
     const { name, email, perfil = 'usuario' } = req.body;
 
-    const existing = await db.collection('auth_users').where('email', '==', email).get();
-    if (!existing.empty) {
+    const existingUser = await db.collection('users').where('email', '==', email).get();
+    if (!existingUser.empty) {
       return res.status(409).json({ mensagem: 'Email já cadastrado' });
     }
 
     const senhaProvisoria = crypto.randomBytes(6).toString('base64url');
     const hash = await bcrypt.hash(senhaProvisoria, 10);
 
-    await db.collection('auth_users').add({ nome: name, email, senha: hash, perfil });
+    const existingAuth = await db.collection('auth_users').where('email', '==', email).get();
+    if (existingAuth.empty) {
+      await db.collection('auth_users').add({ nome: name, email, senha: hash, perfil });
+    } else {
+      await existingAuth.docs[0].ref.update({ nome: name, senha: hash, perfil });
+    }
 
     const user = await createUser({ name, email });
 
