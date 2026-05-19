@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import {
   Text, View, FlatList, TouchableOpacity,
-  StatusBar, useWindowDimensions, ScrollView, Alert, ActivityIndicator,
+  StatusBar, useWindowDimensions, ScrollView, ActivityIndicator,
 } from 'react-native';
 import styles, { COLORS } from './styles/styles';
 import CardUser from './components/users/cardUser';
@@ -12,6 +12,7 @@ import ConfirmModal from './components/ConfirmModal';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
+import Toast from './components/Toast';
 
 const API = 'http://localhost:3000';
 
@@ -29,6 +30,11 @@ function AppContent() {
   const [productEditando, setProductEditando] = useState(null);
   const [confirmModal, setConfirmModal] = useState({ visible: false, message: '', onConfirm: null });
   const [productError, setProductError] = useState('');
+  const [toast, setToast] = useState({ visible: false, type: 'success', message: '' });
+
+  function showToast(type, message) {
+    setToast({ visible: true, type, message });
+  }
 
   const isAdmin = usuario?.perfil === 'admin';
 
@@ -44,7 +50,7 @@ function AppContent() {
     const res = await fetch(url, options);
     if (res.status === 401) {
       await logout();
-      Alert.alert('Sessão expirada', 'Faça login novamente');
+      showToast('error', 'Sessão expirada. Faça login novamente');
       return null;
     }
     return res;
@@ -74,13 +80,19 @@ function AppContent() {
       headers: authHeaders,
       body: JSON.stringify(newUser),
     })
-      .then(r => { if (!r) return null; if (!r.ok) throw new Error('Erro ao criar usuário'); return r.json(); })
+      .then(async r => {
+        if (!r) return null;
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.mensagem || data.error || 'Erro ao criar usuário');
+        return data;
+      })
       .then(created => {
         if (!created) return;
         setUsers(prev => [...prev, created]);
         if (!isDesktop) setMobileView('list');
+        showToast('success', 'Usuário criado com sucesso');
       })
-      .catch(err => Alert.alert('Erro', err.message));
+      .catch(err => showToast('error', err.message));
   }
 
   function handleUpdateUser(userAtualizado) {
@@ -89,14 +101,20 @@ function AppContent() {
       headers: authHeaders,
       body: JSON.stringify(userAtualizado),
     })
-      .then(r => { if (!r) return null; if (!r.ok) throw new Error('Erro ao atualizar usuário'); return r.json(); })
+      .then(async r => {
+        if (!r) return null;
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.mensagem || data.error || 'Erro ao atualizar usuário');
+        return data;
+      })
       .then(updated => {
         if (!updated) return;
         setUsers(prev => prev.map(u => u.id === updated.id ? updated : u));
         setUserEditando(null);
         if (!isDesktop) setMobileView('list');
+        showToast('success', 'Usuário atualizado');
       })
-      .catch(err => Alert.alert('Erro', err.message));
+      .catch(err => showToast('error', err.message));
   }
 
   function handleDeleteUser(id) {
@@ -107,8 +125,8 @@ function AppContent() {
         setConfirmModal(m => ({ ...m, visible: false }));
         safeFetch(`${API}/users/${id}`, { method: 'DELETE', headers: authHeaders })
           .then(r => { if (!r) return; if (!r.ok) throw new Error('Erro ao excluir'); })
-          .then(() => setUsers(prev => prev.filter(u => u.id !== id)))
-          .catch(err => console.error('Erro delete user:', err));
+          .then(() => { setUsers(prev => prev.filter(u => u.id !== id)); showToast('success', 'Usuário excluído'); })
+          .catch(err => showToast('error', err.message));
       },
     });
   }
@@ -126,13 +144,19 @@ function AppContent() {
       headers: authHeaders,
       body: JSON.stringify(newProduct),
     })
-      .then(r => { if (!r) return null; if (!r.ok) throw new Error('Erro ao criar produto'); return r.json(); })
+      .then(async r => {
+        if (!r) return null;
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.mensagem || data.error || 'Erro ao criar produto');
+        return data;
+      })
       .then(created => {
         if (!created) return;
         setProducts(prev => [...prev, created]);
         if (!isDesktop) setMobileView('list');
+        showToast('success', 'Produto criado com sucesso');
       })
-      .catch(err => Alert.alert('Erro', err.message));
+      .catch(err => showToast('error', err.message));
   }
 
   function handleUpdateProduct(productAtualizado) {
@@ -141,14 +165,20 @@ function AppContent() {
       headers: authHeaders,
       body: JSON.stringify(productAtualizado),
     })
-      .then(r => { if (!r) return null; if (!r.ok) throw new Error('Erro ao atualizar produto'); return r.json(); })
+      .then(async r => {
+        if (!r) return null;
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.mensagem || data.error || 'Erro ao atualizar produto');
+        return data;
+      })
       .then(updated => {
         if (!updated) return;
         setProducts(prev => prev.map(p => p.id === updated.id ? updated : p));
         setProductEditando(null);
         if (!isDesktop) setMobileView('list');
+        showToast('success', 'Produto atualizado');
       })
-      .catch(err => Alert.alert('Erro', err.message));
+      .catch(err => showToast('error', err.message));
   }
 
   function handleDeleteProduct(id) {
@@ -158,9 +188,9 @@ function AppContent() {
       onConfirm: () => {
         setConfirmModal(m => ({ ...m, visible: false }));
         safeFetch(`${API}/products/${id}`, { method: 'DELETE', headers: authHeaders })
-          .then(r => { if (!r) return; if (!r.ok) throw new Error('Erro ao excluir'); })
-          .then(() => setProducts(prev => prev.filter(p => p.id !== id)))
-          .catch(err => console.error('Erro delete product:', err));
+          .then(r => { if (!r || !r.ok) throw new Error('Erro ao excluir'); })
+          .then(() => { setProducts(prev => prev.filter(p => p.id !== id)); showToast('success', 'Produto excluído'); })
+          .catch(err => showToast('error', err.message));
       },
     });
   }
@@ -410,6 +440,13 @@ function AppContent() {
         message={confirmModal.message}
         onConfirm={confirmModal.onConfirm}
         onCancel={() => setConfirmModal(m => ({ ...m, visible: false }))}
+      />
+
+      <Toast
+        visible={toast.visible}
+        type={toast.type}
+        message={toast.message}
+        onHide={() => setToast(t => ({ ...t, visible: false }))}
       />
     </View>
   );
