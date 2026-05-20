@@ -9,7 +9,10 @@
       "Bash(findstr :8081)",
       "Bash(findstr LISTENING)",
       "PowerShell(Get-NetTCPConnection *)",
-      "Bash(node -e ' *)"
+      "Bash(node -e ' *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)"
     ]
   }
 }

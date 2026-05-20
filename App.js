@@ -11,17 +11,15 @@ import CreateProduct from './components/products/createProduct';
 import ConfirmModal from './components/ConfirmModal';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import LoginScreen from './screens/LoginScreen';
-import RegisterScreen from './screens/RegisterScreen';
 import Toast from './components/Toast';
 
-const API = 'http://localhost:3000';
+const API = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
 
 function AppContent() {
   const { width } = useWindowDimensions();
   const isDesktop = width >= 768;
   const { token, usuario, carregando, logout } = useAuth();
 
-  const [authScreen, setAuthScreen] = useState('login');
   const [users, setUsers] = useState([]);
   const [products, setProducts] = useState([]);
   const [activeTab, setActiveTab] = useState('user');
