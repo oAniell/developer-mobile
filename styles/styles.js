@@ -496,6 +496,219 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.surfaceBorder,
     marginVertical: 8,
   },
+
+  // ─── Toast ───────────────────────────────────────────────
+  toastContainer: {
+    position: 'absolute',
+    bottom: 32,
+    right: 16,
+    zIndex: 999,
+  },
+
+  toast: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 10,
+    gap: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+
+  toastSuccess: {
+    backgroundColor: '#1a3a2a',
+    borderWidth: 1,
+    borderColor: COLORS.green,
+  },
+
+  toastError: {
+    backgroundColor: '#3a1a1a',
+    borderWidth: 1,
+    borderColor: COLORS.red,
+  },
+
+  toastIcon: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: COLORS.text,
+  },
+
+  toastMessage: {
+    color: COLORS.text,
+    fontSize: 14,
+    fontWeight: '500',
+  },
+
+  // ─── Login Screen ────────────────────────────────────────
+  loginContainer: {
+    flex: 1,
+    backgroundColor: COLORS.bg,
+    justifyContent: 'center',
+    padding: 24,
+  },
+
+  loginCard: {
+    backgroundColor: COLORS.surface,
+    borderRadius: 12,
+    padding: 24,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+
+  loginTitle: {
+    color: COLORS.text,
+    fontSize: 22,
+    fontWeight: '700',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+
+  loginInput: {
+    backgroundColor: COLORS.surfaceHover,
+    color: COLORS.text,
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+
+  loginErro: {
+    color: COLORS.red,
+    fontSize: 13,
+    marginBottom: 12,
+  },
+
+  loginButton: {
+    backgroundColor: COLORS.accentSoft,
+    borderRadius: 8,
+    padding: 14,
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+
+  loginButtonText: {
+    color: COLORS.white,
+    fontWeight: '600',
+    fontSize: 15,
+  },
+
+  loginLink: {
+    color: COLORS.accent,
+    textAlign: 'center',
+    fontSize: 14,
+  },
+
+  // ─── Register Screen ─────────────────────────────────────
+  registerContainer: {
+    flex: 1,
+    backgroundColor: COLORS.bg,
+    justifyContent: 'center',
+    padding: 24,
+  },
+
+  registerCard: {
+    backgroundColor: COLORS.surface,
+    borderRadius: 12,
+    padding: 24,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+
+  registerTitle: {
+    color: COLORS.text,
+    fontSize: 22,
+    fontWeight: '700',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+
+  registerLabel: {
+    color: COLORS.textSub,
+    fontSize: 12,
+    fontWeight: '600',
+    marginBottom: 6,
+    marginTop: 4,
+  },
+
+  registerInput: {
+    backgroundColor: COLORS.surfaceHover,
+    color: COLORS.text,
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 4,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+
+  registerInputError: {
+    borderColor: COLORS.red,
+  },
+
+  registerFieldErro: {
+    color: COLORS.red,
+    fontSize: 12,
+    marginBottom: 8,
+  },
+
+  registerErro: {
+    color: COLORS.red,
+    fontSize: 13,
+    marginBottom: 12,
+  },
+
+  registerPerfilRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 16,
+  },
+
+  registerPerfilBtn: {
+    flex: 1,
+    padding: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    alignItems: 'center',
+  },
+
+  registerPerfilBtnActive: {
+    backgroundColor: COLORS.accentSoft,
+    borderColor: COLORS.accentSoft,
+  },
+
+  registerPerfilBtnText: {
+    color: COLORS.textSub,
+    fontWeight: '600',
+  },
+
+  registerPerfilBtnTextActive: {
+    color: COLORS.white,
+  },
+
+  registerButton: {
+    backgroundColor: COLORS.accentSoft,
+    borderRadius: 8,
+    padding: 14,
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+
+  registerButtonText: {
+    color: COLORS.white,
+    fontWeight: '600',
+    fontSize: 15,
+  },
+
+  registerLink: {
+    color: COLORS.accent,
+    textAlign: 'center',
+    fontSize: 14,
+  },
 });
 
 export default styles;

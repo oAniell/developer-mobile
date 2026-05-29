@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useAuth } from '../context/AuthContext';
-import { COLORS } from '../styles/styles';
+import styles, { COLORS } from '../styles/styles';
 
 export default function RegisterScreen({ onNavigateToLogin }) {
   const { registrar } = useAuth();
@@ -38,21 +38,21 @@ export default function RegisterScreen({ onNavigateToLogin }) {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.card}>
-        <Text style={styles.title}>Cadastro</Text>
+    <View style={styles.registerContainer}>
+      <View style={styles.registerCard}>
+        <Text style={styles.registerTitle}>Cadastro</Text>
 
         <TextInput
-          style={[styles.input, errors.nome && styles.inputError]}
+          style={[styles.registerInput, errors.nome && styles.registerInputError]}
           placeholder="Nome"
           placeholderTextColor={COLORS.textMuted}
           value={nome}
           onChangeText={v => { setNome(v); setErrors(p => ({ ...p, nome: null })); }}
         />
-        {errors.nome ? <Text style={styles.fieldErro}>{errors.nome}</Text> : null}
+        {errors.nome ? <Text style={styles.registerFieldErro}>{errors.nome}</Text> : null}
 
         <TextInput
-          style={[styles.input, errors.email && styles.inputError]}
+          style={[styles.registerInput, errors.email && styles.registerInputError]}
           placeholder="Email"
           placeholderTextColor={COLORS.textMuted}
           value={email}
@@ -60,73 +60,45 @@ export default function RegisterScreen({ onNavigateToLogin }) {
           keyboardType="email-address"
           autoCapitalize="none"
         />
-        {errors.email ? <Text style={styles.fieldErro}>{errors.email}</Text> : null}
+        {errors.email ? <Text style={styles.registerFieldErro}>{errors.email}</Text> : null}
 
         <TextInput
-          style={[styles.input, errors.senha && styles.inputError]}
+          style={[styles.registerInput, errors.senha && styles.registerInputError]}
           placeholder="Senha (mínimo 8 caracteres)"
           placeholderTextColor={COLORS.textMuted}
           value={senha}
           onChangeText={v => { setSenha(v); setErrors(p => ({ ...p, senha: null })); }}
           secureTextEntry
         />
-        {errors.senha ? <Text style={styles.fieldErro}>{errors.senha}</Text> : null}
+        {errors.senha ? <Text style={styles.registerFieldErro}>{errors.senha}</Text> : null}
 
-        <Text style={styles.label}>Perfil</Text>
-        <View style={styles.perfilRow}>
+        <Text style={styles.registerLabel}>Perfil</Text>
+        <View style={styles.registerPerfilRow}>
           {['usuario', 'admin'].map(p => (
             <TouchableOpacity
               key={p}
-              style={[styles.perfilBtn, perfil === p && styles.perfilBtnActive]}
+              style={[styles.registerPerfilBtn, perfil === p && styles.registerPerfilBtnActive]}
               onPress={() => setPerfil(p)}
             >
-              <Text style={[styles.perfilBtnText, perfil === p && styles.perfilBtnTextActive]}>
+              <Text style={[styles.registerPerfilBtnText, perfil === p && styles.registerPerfilBtnTextActive]}>
                 {p === 'admin' ? 'Admin' : 'Usuário'}
               </Text>
             </TouchableOpacity>
           ))}
         </View>
 
-        {erroApi ? <Text style={styles.erro}>{erroApi}</Text> : null}
+        {erroApi ? <Text style={styles.registerErro}>{erroApi}</Text> : null}
 
-        <TouchableOpacity style={styles.button} onPress={handleRegister} disabled={carregando}>
+        <TouchableOpacity style={styles.registerButton} onPress={handleRegister} disabled={carregando}>
           {carregando
             ? <ActivityIndicator color={COLORS.white} />
-            : <Text style={styles.buttonText}>Cadastrar</Text>}
+            : <Text style={styles.registerButtonText}>Cadastrar</Text>}
         </TouchableOpacity>
 
         <TouchableOpacity onPress={onNavigateToLogin}>
-          <Text style={styles.link}>Já tem conta? Entrar</Text>
+          <Text style={styles.registerLink}>Já tem conta? Entrar</Text>
         </TouchableOpacity>
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.bg, justifyContent: 'center', padding: 24 },
-  card: { backgroundColor: COLORS.surface, borderRadius: 12, padding: 24, borderWidth: 1, borderColor: COLORS.border },
-  title: { color: COLORS.text, fontSize: 22, fontWeight: '700', marginBottom: 20, textAlign: 'center' },
-  label: { color: COLORS.textSub, fontSize: 12, fontWeight: '600', marginBottom: 6, marginTop: 4 },
-  input: {
-    backgroundColor: COLORS.surfaceHover, color: COLORS.text, borderRadius: 8,
-    padding: 12, marginBottom: 4, borderWidth: 1, borderColor: COLORS.border,
-  },
-  inputError: { borderColor: COLORS.red },
-  fieldErro: { color: COLORS.red, fontSize: 12, marginBottom: 8 },
-  erro: { color: COLORS.red, fontSize: 13, marginBottom: 12 },
-  perfilRow: { flexDirection: 'row', gap: 8, marginBottom: 16 },
-  perfilBtn: {
-    flex: 1, padding: 10, borderRadius: 8, borderWidth: 1,
-    borderColor: COLORS.border, alignItems: 'center',
-  },
-  perfilBtnActive: { backgroundColor: COLORS.accentSoft, borderColor: COLORS.accentSoft },
-  perfilBtnText: { color: COLORS.textSub, fontWeight: '600' },
-  perfilBtnTextActive: { color: COLORS.white },
-  button: {
-    backgroundColor: COLORS.accentSoft, borderRadius: 8, padding: 14,
-    alignItems: 'center', marginBottom: 16,
-  },
-  buttonText: { color: COLORS.white, fontWeight: '600', fontSize: 15 },
-  link: { color: COLORS.accent, textAlign: 'center', fontSize: 14 },
-});
