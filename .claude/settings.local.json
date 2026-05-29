@@ -29,7 +29,8 @@
       "Bash(railway --version)",
       "Bash(railway whoami *)",
       "PowerShell(railway *)",
-      "PowerShell(render *)"
+      "PowerShell(render *)",
+      "PowerShell(vercel *)"
     ]
   }
 }

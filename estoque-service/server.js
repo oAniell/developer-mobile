@@ -1,10 +1,12 @@
 require('dotenv').config();
 const express = require('express');
+const cors = require('cors');
 const estoqueRouter = require('./routes/estoque');
 const { iniciarConsumidor } = require('./rabbitmq');
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 app.use((req, _res, next) => { console.log(`${req.method} ${req.path}`); next(); });
 
