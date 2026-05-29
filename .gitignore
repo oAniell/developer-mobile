@@ -38,6 +38,8 @@ server/serviceAccountKey.json
 
 # Server environment variables
 server/.env
+pedido-service/.env
+estoque-service/.env
 
 # typescript
 *.tsbuildinfo
@@ -45,3 +47,4 @@ server/.env
 # generated native folders
 /ios
 /android
+

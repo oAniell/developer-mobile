@@ -30,7 +30,10 @@
       "Bash(railway whoami *)",
       "PowerShell(railway *)",
       "PowerShell(render *)",
-      "PowerShell(vercel *)"
+      "PowerShell(vercel *)",
+      "Bash(Get-ChildItem C:\\\\Users\\\\guilherme_a_oliveir2\\\\Develop-Mobile\\\\Produtos-Usuarios -Depth 2 -Exclude node_modules)",
+      "Bash(Select-Object FullName)",
+      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\guilherme_a_oliveir2\\\\Develop-Mobile\\\\Produtos-Usuarios\" -Exclude \"node_modules\" | ForEach-Object { $_.FullName })"
     ]
   }
 }
