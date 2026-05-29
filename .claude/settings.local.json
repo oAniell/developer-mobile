@@ -12,7 +12,24 @@
       "Bash(node -e ' *)",
       "Bash(git add *)",
       "Bash(git commit *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(npm --version)",
+      "Bash(docker *)",
+      "Bash(Start-Process -NoNewWindow -FilePath \"node\" -ArgumentList \"server.js\" -WorkingDirectory \"C:\\\\Users\\\\guilherme_a_oliveir2\\\\Develop-Mobile\\\\Produtos-Usuarios\\\\pedido-service\")",
+      "Bash(Start-Sleep -Seconds 2)",
+      "Bash(Start-Process -NoNewWindow -FilePath \"node\" -ArgumentList \"server.js\" -WorkingDirectory \"C:\\\\Users\\\\guilherme_a_oliveir2\\\\Develop-Mobile\\\\Produtos-Usuarios\\\\estoque-service\")",
+      "Bash(Start-Sleep -Seconds 3)",
+      "Bash(Write-Host \"Serviços iniciados\")",
+      "PowerShell(Start-Process -NoNewWindow -FilePath \"node\" -ArgumentList \"server.js\" -WorkingDirectory \"C:\\\\Users\\\\guilherme_a_oliveir2\\\\Develop-Mobile\\\\Produtos-Usuarios\\\\pedido-service\")",
+      "PowerShell(Start-Process -NoNewWindow -FilePath \"node\" -ArgumentList \"server.js\" -WorkingDirectory \"C:\\\\Users\\\\guilherme_a_oliveir2\\\\Develop-Mobile\\\\Produtos-Usuarios\\\\estoque-service\")",
+      "PowerShell(Invoke-RestMethod -Uri \"http://localhost:3001/pedidos\" -Method GET | ConvertTo-Json)",
+      "PowerShell(Invoke-RestMethod -Uri \"http://localhost:3002/estoque\" -Method GET | ConvertTo-Json)",
+      "PowerShell(Invoke-RestMethod -Uri \"http://localhost:3002/estoque\" -Method GET)",
+      "PowerShell(Invoke-RestMethod -Uri \"http://localhost:3001/pedidos\" -Method GET)",
+      "Bash(railway --version)",
+      "Bash(railway whoami *)",
+      "PowerShell(railway *)",
+      "PowerShell(render *)"
     ]
   }
 }

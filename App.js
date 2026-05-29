@@ -8,12 +8,17 @@ import CardUser from './components/users/cardUser';
 import CreateUsers from './components/users/createUsers';
 import CardProduct from './components/products/cardProduct';
 import CreateProduct from './components/products/createProduct';
+import CreatePedido from './components/pedidos/createPedido';
+import CardPedido from './components/pedidos/cardPedido';
+import CardEstoque from './components/estoque/cardEstoque';
 import ConfirmModal from './components/ConfirmModal';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import LoginScreen from './screens/LoginScreen';
 import Toast from './components/Toast';
 
 const API = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
+const PEDIDO_API = process.env.EXPO_PUBLIC_PEDIDO_API_URL || 'http://localhost:3001';
+const ESTOQUE_API = process.env.EXPO_PUBLIC_ESTOQUE_API_URL || 'http://localhost:3002';
 
 function AppContent() {
   const { width } = useWindowDimensions();
@@ -28,6 +33,8 @@ function AppContent() {
   const [productEditando, setProductEditando] = useState(null);
   const [confirmModal, setConfirmModal] = useState({ visible: false, message: '', onConfirm: null });
   const [productError, setProductError] = useState('');
+  const [pedidos, setPedidos] = useState([]);
+  const [estoque, setEstoque] = useState([]);
   const [toast, setToast] = useState({ visible: false, type: 'success', message: '' });
 
   function showToast(type, message) {
@@ -68,7 +75,41 @@ function AppContent() {
       .then(r => { if (!r.ok) throw new Error('Erro ao carregar produtos'); return r.json(); })
       .then(data => setProducts(data))
       .catch(err => setProductError(err.message));
+
+    fetch(`${PEDIDO_API}/pedidos`)
+      .then(r => r.json())
+      .then(data => setPedidos(data))
+      .catch(() => {});
+
+    fetch(`${ESTOQUE_API}/estoque`)
+      .then(r => r.json())
+      .then(data => setEstoque(data))
+      .catch(() => {});
   }, [token]);
+
+  // ─── Handlers de pedidos ─────────────────────────────────
+
+  function handleCreatePedido(novoPedido) {
+    fetch(`${PEDIDO_API}/pedidos`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(novoPedido),
+    })
+      .then(async r => {
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.error || 'Erro ao criar pedido');
+        return data;
+      })
+      .then(created => {
+        setPedidos(prev => [...prev, created]);
+        if (!isDesktop) setMobileView('list');
+        showToast('success', 'Pedido criado com sucesso');
+        setTimeout(() => {
+          fetch(`${ESTOQUE_API}/estoque`).then(r => r.json()).then(data => setEstoque(data)).catch(() => {});
+        }, 800);
+      })
+      .catch(err => showToast('error', err.message));
+  }
 
   // ─── Handlers de usuários ────────────────────────────────
 
@@ -228,7 +269,8 @@ function AppContent() {
   // ─── App principal ────────────────────────────────────────
 
   const isUser = activeTab === 'user';
-  const listCount = isUser ? users.length : products.length;
+  const isPedido = activeTab === 'pedido';
+  const listCount = isUser ? users.length : isPedido ? pedidos.length : products.length;
 
   const formContent = isUser ? (
     <CreateUsers
@@ -238,6 +280,8 @@ function AppContent() {
       onCancelEdit={handleCancelEdit}
       podeGerenciar={isAdmin}
     />
+  ) : isPedido ? (
+    <CreatePedido onCreatePedido={handleCreatePedido} />
   ) : (
     <CreateProduct
       onCreateProduct={handleCreateProduct}
@@ -245,6 +289,46 @@ function AppContent() {
       productEditando={productEditando}
       onCancelEdit={handleCancelEdit}
     />
+  );
+
+  const pedidosContent = (
+    <>
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionTitle}>Pedidos Realizados</Text>
+        <Text style={styles.sectionCount}>{pedidos.length} {pedidos.length === 1 ? 'registro' : 'registros'}</Text>
+      </View>
+      <FlatList
+        data={pedidos}
+        keyExtractor={item => String(item.id)}
+        renderItem={({ item }) => <CardPedido item={item} />}
+        showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyIcon}>🛒</Text>
+            <Text style={styles.emptyTitle}>Nenhum pedido ainda</Text>
+            <Text style={styles.emptySubtitle}>Crie o primeiro pelo formulário</Text>
+          </View>
+        }
+      />
+      <View style={[styles.divider, { marginTop: 16 }]} />
+      <View style={[styles.sectionHeader, { marginTop: 16 }]}>
+        <Text style={styles.sectionTitle}>Estoque Atual</Text>
+        <Text style={styles.sectionCount}>{estoque.length} produto{estoque.length !== 1 ? 's' : ''}</Text>
+      </View>
+      <FlatList
+        data={estoque}
+        keyExtractor={item => item.produto}
+        renderItem={({ item }) => <CardEstoque item={item} />}
+        showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyIcon}>📦</Text>
+            <Text style={styles.emptyTitle}>Estoque indisponível</Text>
+            <Text style={styles.emptySubtitle}>Verifique se o estoque-service está rodando</Text>
+          </View>
+        }
+      />
+    </>
   );
 
   const listContent = (
@@ -357,15 +441,28 @@ function AppContent() {
         )}
 
         <TouchableOpacity
-          style={[styles.tabButton, (!isUser || !isAdmin) ? styles.tabButtonActive : styles.tabButtonInactive]}
+          style={[styles.tabButton, (activeTab === 'product') ? styles.tabButtonActive : styles.tabButtonInactive]}
           onPress={() => switchTab('product')}
         >
           <Text style={styles.tabIcon}>📦</Text>
-          <Text style={[styles.tabText, (!isUser || !isAdmin) ? styles.tabTextActive : styles.tabTextInactive]}>
+          <Text style={[styles.tabText, (activeTab === 'product') ? styles.tabTextActive : styles.tabTextInactive]}>
             Produtos
           </Text>
-          <Text style={[styles.tabCount, (!isUser || !isAdmin) ? styles.tabCountActive : styles.tabCountInactive]}>
+          <Text style={[styles.tabCount, (activeTab === 'product') ? styles.tabCountActive : styles.tabCountInactive]}>
             {products.length}
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.tabButton, isPedido ? styles.tabButtonActive : styles.tabButtonInactive]}
+          onPress={() => switchTab('pedido')}
+        >
+          <Text style={styles.tabIcon}>🛒</Text>
+          <Text style={[styles.tabText, isPedido ? styles.tabTextActive : styles.tabTextInactive]}>
+            Pedidos
+          </Text>
+          <Text style={[styles.tabCount, isPedido ? styles.tabCountActive : styles.tabCountInactive]}>
+            {pedidos.length}
           </Text>
         </TouchableOpacity>
       </View>
@@ -404,22 +501,23 @@ function AppContent() {
               <Text style={styles.sectionTitle}>
                 {isUser
                   ? (userEditando ? 'Editar Usuário' : 'Novo Usuário')
+                  : isPedido ? 'Novo Pedido'
                   : (productEditando ? 'Editar Produto' : 'Novo Produto')}
               </Text>
             </View>
             {formContent}
           </ScrollView>
 
-          <View style={styles.rightPanel}>
-            {listContent}
-          </View>
+          <ScrollView style={styles.rightPanel} showsVerticalScrollIndicator={false}>
+            {isPedido ? pedidosContent : listContent}
+          </ScrollView>
         </View>
       ) : (
         <View style={styles.mainContent}>
           {mobileView === 'list' ? (
-            <View style={styles.mobilePanel}>
-              {listContent}
-            </View>
+            <ScrollView style={styles.mobilePanel} showsVerticalScrollIndicator={false}>
+              {isPedido ? pedidosContent : listContent}
+            </ScrollView>
           ) : (
             <ScrollView
               style={styles.mobilePanel}
