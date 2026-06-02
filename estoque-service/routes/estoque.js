@@ -10,4 +10,30 @@ router.get('/', (_req, res) => {
   }
 });
 
+router.post('/', (req, res) => {
+  try {
+    const { produto, quantidade } = req.body;
+    if (!produto || typeof produto !== 'string' || !produto.trim()) {
+      return res.status(400).json({ error: 'Produto é obrigatório' });
+    }
+    const qtd = Number(quantidade);
+    if (!quantidade || isNaN(qtd) || qtd <= 0) {
+      return res.status(400).json({ error: 'Quantidade deve ser um número positivo' });
+    }
+
+    const item = estoque.find((e) => e.produto === produto.trim());
+    if (item) {
+      item.quantidade += qtd;
+    } else {
+      estoque.push({ produto: produto.trim(), quantidade: qtd });
+    }
+
+    const resultado = estoque.find((e) => e.produto === produto.trim());
+    console.log(`[Estoque] Adicionado: ${resultado.produto} | Quantidade total: ${resultado.quantidade}`);
+    res.status(201).json(resultado);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;

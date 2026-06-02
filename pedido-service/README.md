@@ -2,6 +2,11 @@
 
 Microsserviço responsável por registrar pedidos e publicá-los na fila RabbitMQ `fila_pedidos`.
 
+## Hospedagem
+
+- **Serviço**: Render
+- **Mensageria**: CloudAMQP (fila `fila_pedidos`)
+
 ## Pré-requisitos
 
 ### Subir o RabbitMQ via Docker

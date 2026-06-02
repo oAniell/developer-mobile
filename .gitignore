@@ -48,3 +48,6 @@ estoque-service/.env
 /ios
 /android
 
+.kiro
+.claude
+

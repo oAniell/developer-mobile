@@ -2,7 +2,7 @@ import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 import { useState } from 'react';
 import styles, { COLORS } from '../../styles/styles';
 
-export default function CreatePedido({ onCreatePedido }) {
+export default function CreateEstoque({ onCreateEstoque }) {
   const [produto, setProduto] = useState('');
   const [quantidade, setQuantidade] = useState('');
   const [errors, setErrors] = useState({});
@@ -19,7 +19,7 @@ export default function CreatePedido({ onCreatePedido }) {
 
   function handleSubmit() {
     if (!validate()) return;
-    onCreatePedido({
+    onCreateEstoque({
       produto: produto.trim(),
       quantidade: Number(quantidade),
     });
@@ -32,11 +32,11 @@ export default function CreatePedido({ onCreatePedido }) {
     <View style={styles.form}>
       <View style={styles.formHeader}>
         <View style={styles.formIconBg}>
-          <Text style={styles.formIcon}>🛒</Text>
+          <Text style={styles.formIcon}>📦</Text>
         </View>
         <View>
-          <Text style={styles.formTitle}>Novo Pedido</Text>
-          <Text style={styles.formSubtitle}>Preencha os dados abaixo</Text>
+          <Text style={styles.formTitle}>Adicionar ao Estoque</Text>
+          <Text style={styles.formSubtitle}>Repor ou cadastrar item</Text>
         </View>
       </View>
 
@@ -66,7 +66,7 @@ export default function CreatePedido({ onCreatePedido }) {
             focusedField === 'quantidade' && styles.inputFocused,
             errors.quantidade && styles.inputError,
           ]}
-          placeholder="Ex: 2"
+          placeholder="Ex: 10"
           placeholderTextColor={COLORS.textMuted}
           value={quantidade}
           onChangeText={(text) => { setQuantidade(text); if (errors.quantidade) setErrors(p => ({ ...p, quantidade: null })); }}
@@ -78,7 +78,7 @@ export default function CreatePedido({ onCreatePedido }) {
       </View>
 
       <TouchableOpacity style={[styles.button, styles.buttonPrimary]} onPress={handleSubmit}>
-        <Text style={styles.buttonText}>Criar Pedido</Text>
+        <Text style={styles.buttonText}>Adicionar ao Estoque</Text>
       </TouchableOpacity>
     </View>
   );

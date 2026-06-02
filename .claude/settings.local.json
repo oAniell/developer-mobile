@@ -33,7 +33,16 @@
       "PowerShell(vercel *)",
       "Bash(Get-ChildItem C:\\\\Users\\\\guilherme_a_oliveir2\\\\Develop-Mobile\\\\Produtos-Usuarios -Depth 2 -Exclude node_modules)",
       "Bash(Select-Object FullName)",
-      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\guilherme_a_oliveir2\\\\Develop-Mobile\\\\Produtos-Usuarios\" -Exclude \"node_modules\" | ForEach-Object { $_.FullName })"
+      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\guilherme_a_oliveir2\\\\Develop-Mobile\\\\Produtos-Usuarios\" -Exclude \"node_modules\" | ForEach-Object { $_.FullName })",
+      "Bash(Get-ChildItem *)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\guilherme_a_oliveir2\\\\Develop-Mobile\\\\Produtos-Usuarios\" -Force | Select-Object Name, @{N=\"Type\"; E={if\\($_.PSIsContainer\\){\"Directory\"}else{\"File\"}}} | Format-Table -AutoSize)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\guilherme_a_oliveir2\\\\Develop-Mobile\\\\Produtos-Usuarios\\\\estoque-service\" -Force | Where-Object { $_.Name -ne \"node_modules\" } | Select-Object Name, @{N=\"Type\"; E={if\\($_.PSIsContainer\\){\"Directory\"}else{\"File\"}}}  | Format-Table -AutoSize)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\guilherme_a_oliveir2\\\\Develop-Mobile\\\\Produtos-Usuarios\\\\pedido-service\" -Force | Where-Object { $_.Name -ne \"node_modules\" } | Select-Object Name, @{N=\"Type\"; E={if\\($_.PSIsContainer\\){\"Directory\"}else{\"File\"}}} | Format-Table -AutoSize)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\guilherme_a_oliveir2\\\\Develop-Mobile\\\\Produtos-Usuarios\\\\server\" -Force | Where-Object { $_.Name -ne \"node_modules\" } | Select-Object Name, @{N=\"Type\"; E={if\\($_.PSIsContainer\\){\"Directory\"}else{\"File\"}}} | Format-Table -AutoSize)",
+      "Bash(New-Item -ItemType Directory -Force \"C:\\\\Users\\\\guilherme_a_oliveir2\\\\Develop-Mobile\\\\Produtos-Usuarios\\\\src\\\\database\")",
+      "Bash(Out-Null)",
+      "Bash(New-Item -ItemType Directory -Force \"C:\\\\Users\\\\guilherme_a_oliveir2\\\\Develop-Mobile\\\\Produtos-Usuarios\\\\src\\\\hooks\")",
+      "Bash(Write-Output \"done\")"
     ]
   }
 }

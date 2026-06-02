@@ -11,10 +11,16 @@ import CreateProduct from './components/products/createProduct';
 import CreatePedido from './components/pedidos/createPedido';
 import CardPedido from './components/pedidos/cardPedido';
 import CardEstoque from './components/estoque/cardEstoque';
+import CreateEstoque from './components/estoque/createEstoque';
 import ConfirmModal from './components/ConfirmModal';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import LoginScreen from './screens/LoginScreen';
 import Toast from './components/Toast';
+import { initDatabase } from './src/database/database';
+import { insertPedido, getAllPedidos } from './src/database/pedidosRepository';
+import { saveProductsCache, getProductsCache } from './src/database/produtosRepository';
+import { useConectividade } from './src/hooks/useConectividade';
+import { useSincronizador } from './src/hooks/useSincronizador';
 
 const API = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
 const PEDIDO_API = process.env.EXPO_PUBLIC_PEDIDO_API_URL || 'http://localhost:3001';
@@ -36,16 +42,49 @@ function AppContent() {
   const [pedidos, setPedidos] = useState([]);
   const [estoque, setEstoque] = useState([]);
   const [toast, setToast] = useState({ visible: false, type: 'success', message: '' });
+  const [dbReady, setDbReady] = useState(false);
 
   function showToast(type, message) {
     setToast({ visible: true, type, message });
   }
+
+  const { isConnected, isLoading: conectividadeLoading } = useConectividade();
+  const { sincronizar, retryPedido, sincronizando } = useSincronizador({
+    isConnected,
+    showToast,
+    onPedidosUpdated: async () => {
+      await getAllPedidos().then(setPedidos);
+      fetch(`${ESTOQUE_API}/estoque`)
+        .then(r => r.json())
+        .then(data => setEstoque(data))
+        .catch(() => {});
+    },
+  });
 
   const isAdmin = usuario?.perfil === 'admin';
 
   useEffect(() => {
     if (token && !isAdmin) setActiveTab('product');
   }, [token]);
+
+  useEffect(() => {
+    initDatabase()
+      .then(() => {
+        console.log('[DB] banco inicializado com sucesso');
+        setDbReady(true);
+      })
+      .catch(err => {
+        console.error('[DB] falha crítica:', err?.message ?? err);
+        showToast('error', `Banco indisponível: ${err?.message ?? 'erro desconhecido'}`);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (isConnected === true && dbReady) {
+      const timer = setTimeout(() => sincronizar(), 0);
+      return () => clearTimeout(timer);
+    }
+  }, [isConnected, dbReady]);
 
   const authHeaders = token
     ? { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }
@@ -62,7 +101,7 @@ function AppContent() {
   }
 
   useEffect(() => {
-    if (!token) return;
+    if (!token || !dbReady) return;
 
     if (isAdmin) {
       fetch(`${API}/users`, { headers: authHeaders })
@@ -71,42 +110,87 @@ function AppContent() {
         .catch(err => console.error('Erro ao carregar usuários:', err));
     }
 
-    fetch(`${API}/products`)
-      .then(r => { if (!r.ok) throw new Error('Erro ao carregar produtos'); return r.json(); })
-      .then(data => setProducts(data))
-      .catch(err => setProductError(err.message));
+    getAllPedidos().then(setPedidos).catch(() => {});
 
-    fetch(`${PEDIDO_API}/pedidos`)
-      .then(r => r.json())
-      .then(data => setPedidos(data))
-      .catch(() => {});
+    if (isConnected !== false) {
+      fetch(`${API}/products`)
+        .then(r => { if (!r.ok) throw new Error('Erro ao carregar produtos'); return r.json(); })
+        .then(data => {
+          setProducts(data);
+          saveProductsCache(data).catch(() => {});
+        })
+        .catch(async () => {
+          const cached = await getProductsCache().catch(() => []);
+          setProducts(cached);
+          if (cached.length === 0) setProductError('Produtos indisponíveis offline. Conecte-se para carregar.');
+          else setProductError('⚠️ Dados podem estar desatualizados');
+        });
+    } else {
+      getProductsCache().then(cached => {
+        setProducts(cached);
+        if (cached.length === 0) setProductError('Produtos indisponíveis offline. Conecte-se para carregar.');
+        else setProductError('⚠️ Dados podem estar desatualizados');
+      }).catch(() => {});
+    }
 
     fetch(`${ESTOQUE_API}/estoque`)
       .then(r => r.json())
       .then(data => setEstoque(data))
       .catch(() => {});
-  }, [token]);
+  }, [token, dbReady]);
 
   // ─── Handlers de pedidos ─────────────────────────────────
 
-  function handleCreatePedido(novoPedido) {
-    fetch(`${PEDIDO_API}/pedidos`, {
+  async function handleCreatePedido(novoPedido) {
+    if (!dbReady) {
+      showToast('error', 'Banco ainda inicializando, tente novamente');
+      return;
+    }
+    const pedidoLocal = {
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2),
+      produto: novoPedido.produto,
+      quantidade: novoPedido.quantidade,
+      status: 'PENDENTE',
+      erro_msg: null,
+      created_at: Date.now(),
+    };
+    try {
+      await insertPedido(pedidoLocal);
+      const todos = await getAllPedidos();
+      setPedidos(todos);
+      if (!isDesktop) setMobileView('list');
+      showToast('success', 'Pedido salvo localmente');
+      if (isConnected) sincronizar();
+    } catch (err) {
+      showToast('error', 'Não foi possível salvar o pedido');
+    }
+  }
+
+  // ─── Handlers de estoque ─────────────────────────────────
+
+  function handleCreateEstoque(novoItem) {
+    fetch(`${ESTOQUE_API}/estoque`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(novoPedido),
+      body: JSON.stringify(novoItem),
     })
       .then(async r => {
         const data = await r.json();
-        if (!r.ok) throw new Error(data.error || 'Erro ao criar pedido');
+        if (!r.ok) throw new Error(data.error || 'Erro ao adicionar ao estoque');
         return data;
       })
-      .then(created => {
-        setPedidos(prev => [...prev, created]);
+      .then(item => {
+        setEstoque(prev => {
+          const idx = prev.findIndex(e => e.produto === item.produto);
+          if (idx >= 0) {
+            const next = [...prev];
+            next[idx] = item;
+            return next;
+          }
+          return [...prev, item];
+        });
         if (!isDesktop) setMobileView('list');
-        showToast('success', 'Pedido criado com sucesso');
-        setTimeout(() => {
-          fetch(`${ESTOQUE_API}/estoque`).then(r => r.json()).then(data => setEstoque(data)).catch(() => {});
-        }, 800);
+        showToast('success', `${item.produto} adicionado ao estoque`);
       })
       .catch(err => showToast('error', err.message));
   }
@@ -270,7 +354,8 @@ function AppContent() {
 
   const isUser = activeTab === 'user';
   const isPedido = activeTab === 'pedido';
-  const listCount = isUser ? users.length : isPedido ? pedidos.length : products.length;
+  const isEstoque = activeTab === 'estoque';
+  const listCount = isUser ? users.length : isPedido ? pedidos.length : isEstoque ? estoque.length : products.length;
 
   const formContent = isUser ? (
     <CreateUsers
@@ -282,6 +367,8 @@ function AppContent() {
     />
   ) : isPedido ? (
     <CreatePedido onCreatePedido={handleCreatePedido} />
+  ) : isEstoque ? (
+    <CreateEstoque onCreateEstoque={handleCreateEstoque} />
   ) : (
     <CreateProduct
       onCreateProduct={handleCreateProduct}
@@ -297,10 +384,27 @@ function AppContent() {
         <Text style={styles.sectionTitle}>Pedidos Realizados</Text>
         <Text style={styles.sectionCount}>{pedidos.length} {pedidos.length === 1 ? 'registro' : 'registros'}</Text>
       </View>
+      {!conectividadeLoading && (
+        <View style={styles.offlineBar}>
+          <Text style={[styles.offlineBarText, { color: isConnected ? COLORS.green : COLORS.red }]}>
+            {isConnected ? '🟢 Online' : '🔴 Offline'}
+          </Text>
+          {pedidos.filter(p => p.status === 'PENDENTE').length > 0 && (
+            <Text style={styles.pendingCount}>
+              {pedidos.filter(p => p.status === 'PENDENTE').length} pendente(s)
+            </Text>
+          )}
+        </View>
+      )}
       <FlatList
         data={pedidos}
         keyExtractor={item => String(item.id)}
-        renderItem={({ item }) => <CardPedido item={item} />}
+        renderItem={({ item }) => (
+          <CardPedido
+            item={item}
+            onRetry={item.status === 'ERRO' ? () => retryPedido(item.id) : undefined}
+          />
+        )}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           <View style={styles.emptyState}>
@@ -310,8 +414,12 @@ function AppContent() {
           </View>
         }
       />
-      <View style={[styles.divider, { marginTop: 16 }]} />
-      <View style={[styles.sectionHeader, { marginTop: 16 }]}>
+    </>
+  );
+
+  const estoqueContent = (
+    <>
+      <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>Estoque Atual</Text>
         <Text style={styles.sectionCount}>{estoque.length} produto{estoque.length !== 1 ? 's' : ''}</Text>
       </View>
@@ -323,8 +431,10 @@ function AppContent() {
         ListEmptyComponent={
           <View style={styles.emptyState}>
             <Text style={styles.emptyIcon}>📦</Text>
-            <Text style={styles.emptyTitle}>Estoque indisponível</Text>
-            <Text style={styles.emptySubtitle}>Verifique se o estoque-service está rodando</Text>
+            <Text style={styles.emptyTitle}>Estoque vazio</Text>
+            <Text style={styles.emptySubtitle}>
+              {isDesktop ? 'Adicione itens pelo formulário ao lado' : 'Toque em "+ Novo" para adicionar'}
+            </Text>
           </View>
         }
       />
@@ -465,6 +575,19 @@ function AppContent() {
             {pedidos.length}
           </Text>
         </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.tabButton, isEstoque ? styles.tabButtonActive : styles.tabButtonInactive]}
+          onPress={() => switchTab('estoque')}
+        >
+          <Text style={styles.tabIcon}>🏭</Text>
+          <Text style={[styles.tabText, isEstoque ? styles.tabTextActive : styles.tabTextInactive]}>
+            Estoque
+          </Text>
+          <Text style={[styles.tabCount, isEstoque ? styles.tabCountActive : styles.tabCountInactive]}>
+            {estoque.length}
+          </Text>
+        </TouchableOpacity>
       </View>
 
       {/* Mobile: sub-nav Lista / Formulário */}
@@ -502,6 +625,7 @@ function AppContent() {
                 {isUser
                   ? (userEditando ? 'Editar Usuário' : 'Novo Usuário')
                   : isPedido ? 'Novo Pedido'
+                  : isEstoque ? 'Adicionar ao Estoque'
                   : (productEditando ? 'Editar Produto' : 'Novo Produto')}
               </Text>
             </View>
@@ -509,14 +633,14 @@ function AppContent() {
           </ScrollView>
 
           <ScrollView style={styles.rightPanel} showsVerticalScrollIndicator={false}>
-            {isPedido ? pedidosContent : listContent}
+            {isPedido ? pedidosContent : isEstoque ? estoqueContent : listContent}
           </ScrollView>
         </View>
       ) : (
         <View style={styles.mainContent}>
           {mobileView === 'list' ? (
             <ScrollView style={styles.mobilePanel} showsVerticalScrollIndicator={false}>
-              {isPedido ? pedidosContent : listContent}
+              {isPedido ? pedidosContent : isEstoque ? estoqueContent : listContent}
             </ScrollView>
           ) : (
             <ScrollView
