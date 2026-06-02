@@ -486,6 +486,60 @@ const styles = StyleSheet.create({
     color: COLORS.textMuted,
   },
 
+  // ─── Offline / Sync ─────────────────────────────────────
+  offlineBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    backgroundColor: COLORS.surface,
+    borderWidth: 1,
+    borderColor: COLORS.surfaceBorder,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+
+  offlineBarText: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+
+  pendingCount: {
+    fontSize: 11,
+    color: COLORS.yellow,
+    fontWeight: '600',
+  },
+
+  syncStatus: {
+    fontSize: 11,
+    fontWeight: '600',
+    marginTop: 2,
+  },
+
+  syncError: {
+    fontSize: 11,
+    color: COLORS.red,
+    marginTop: 2,
+  },
+
+  retryButton: {
+    marginTop: 6,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    backgroundColor: COLORS.redSoft,
+    borderWidth: 1,
+    borderColor: COLORS.red + '50',
+    borderRadius: 6,
+    alignSelf: 'flex-start',
+  },
+
+  retryButtonText: {
+    fontSize: 11,
+    color: COLORS.red,
+    fontWeight: '600',
+  },
+
   // ─── List ────────────────────────────────────────────────
   listContainer: {
     flex: 1,

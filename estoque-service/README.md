@@ -2,6 +2,11 @@
 
 Microsserviço responsável por gerenciar o estoque e consumir pedidos da fila RabbitMQ `fila_pedidos`.
 
+## Hospedagem
+
+- **Serviço**: Render
+- **Mensageria**: CloudAMQP (fila `fila_pedidos`)
+
 ## Pré-requisitos
 
 ### Subir o RabbitMQ via Docker
