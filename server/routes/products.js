@@ -25,7 +25,9 @@ router.put('/:id', autenticar, async (req, res) => {
   try {
     const produto = await getProductById(req.params.id);
     if (!produto) return res.status(404).json({ error: 'Produto não encontrado' });
-    if (produto.userId !== req.usuario.id) return res.status(403).json({ mensagem: 'Você não tem permissão para modificar este produto' });
+    const isAdmin = req.usuario.perfil === 'admin';
+    if (!isAdmin && produto.userId !== req.usuario.id)
+      return res.status(403).json({ mensagem: 'Você não tem permissão para modificar este produto' });
     const updated = await updateProduct(req.params.id, req.body);
     res.json(updated);
   } catch (err) {
@@ -37,7 +39,9 @@ router.delete('/:id', autenticar, async (req, res) => {
   try {
     const produto = await getProductById(req.params.id);
     if (!produto) return res.status(404).json({ error: 'Produto não encontrado' });
-    if (produto.userId !== req.usuario.id) return res.status(403).json({ mensagem: 'Você não tem permissão para modificar este produto' });
+    const isAdmin = req.usuario.perfil === 'admin';
+    if (!isAdmin && produto.userId !== req.usuario.id)
+      return res.status(403).json({ mensagem: 'Você não tem permissão para excluir este produto' });
     await deleteProduct(req.params.id);
     res.status(200).json({ message: 'Produto excluído' });
   } catch (err) {

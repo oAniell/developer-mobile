@@ -261,7 +261,7 @@ function AppContent() {
 
   // ─── Handlers de produtos ────────────────────────────────
 
-  function handleCreateProduct(newProduct) {
+  function handleCreateProduct({ quantidadeInicial, ...newProduct }) {
     safeFetch(`${API}/products`, {
       method: 'POST',
       headers: authHeaders,
@@ -278,6 +278,20 @@ function AppContent() {
         setProducts(prev => [...prev, created]);
         if (!isDesktop) setMobileView('list');
         showToast('success', 'Produto criado com sucesso');
+        if (quantidadeInicial > 0) {
+          fetch(`${ESTOQUE_API}/estoque`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ produto: created.name, quantidade: quantidadeInicial }),
+          })
+            .then(r => r.json())
+            .then(item => setEstoque(prev => {
+              const idx = prev.findIndex(e => e.produto === item.produto);
+              if (idx >= 0) { const next = [...prev]; next[idx] = item; return next; }
+              return [...prev, item];
+            }))
+            .catch(() => {});
+        }
       })
       .catch(err => showToast('error', err.message));
   }
@@ -305,9 +319,17 @@ function AppContent() {
   }
 
   function handleDeleteProduct(id) {
+    const produto = products.find(p => p.id === id);
+    const itemEstoque = produto ? estoque.find(e => e.produto === produto.name) : null;
+    const temEstoque = itemEstoque && itemEstoque.quantidade > 0;
+
+    const message = temEstoque
+      ? `"${produto.name}" tem ${itemEstoque.quantidade} unidade(s) em estoque. Deseja excluir mesmo assim?`
+      : 'Tem certeza que deseja excluir este produto?';
+
     setConfirmModal({
       visible: true,
-      message: 'Tem certeza que deseja excluir este produto?',
+      message,
       onConfirm: () => {
         setConfirmModal(m => ({ ...m, visible: false }));
         safeFetch(`${API}/products/${id}`, { method: 'DELETE', headers: authHeaders })
@@ -366,9 +388,9 @@ function AppContent() {
       podeGerenciar={isAdmin}
     />
   ) : isPedido ? (
-    <CreatePedido onCreatePedido={handleCreatePedido} />
+    <CreatePedido onCreatePedido={handleCreatePedido} products={products} />
   ) : isEstoque ? (
-    <CreateEstoque onCreateEstoque={handleCreateEstoque} />
+    <CreateEstoque onCreateEstoque={handleCreateEstoque} products={products} />
   ) : (
     <CreateProduct
       onCreateProduct={handleCreateProduct}
@@ -491,7 +513,7 @@ function AppContent() {
                   props={item}
                   onDelete={() => handleDeleteProduct(item.id)}
                   onEdit={() => handleEditProduct(item)}
-                  ehProprietario={item.userId === usuario?.id}
+                  ehProprietario={isAdmin || item.userId === usuario?.id}
                 />
               )}
               showsVerticalScrollIndicator={false}

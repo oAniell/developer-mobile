@@ -486,6 +486,87 @@ const styles = StyleSheet.create({
     color: COLORS.textMuted,
   },
 
+  // ─── Dropdown ────────────────────────────────────────────
+  dropdownTrigger: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+
+  dropdownPlaceholder: {
+    color: COLORS.textMuted,
+    fontSize: 13,
+    flex: 1,
+  },
+
+  dropdownSelectedText: {
+    color: COLORS.text,
+    fontSize: 13,
+    flex: 1,
+  },
+
+  dropdownChevron: {
+    color: COLORS.textMuted,
+    fontSize: 10,
+    marginLeft: 8,
+  },
+
+  dropdownList: {
+    backgroundColor: COLORS.surface,
+    borderWidth: 1,
+    borderColor: COLORS.accent,
+    borderRadius: 10,
+    marginTop: 4,
+    overflow: 'hidden',
+    zIndex: 999,
+  },
+
+  dropdownSearch: {
+    backgroundColor: COLORS.bg,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    color: COLORS.text,
+    fontSize: 13,
+  },
+
+  dropdownItem: {
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.surfaceBorder,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+
+  dropdownItemActive: {
+    backgroundColor: COLORS.accentGlow,
+  },
+
+  dropdownItemText: {
+    color: COLORS.text,
+    fontSize: 13,
+  },
+
+  dropdownItemTextActive: {
+    color: COLORS.accent,
+    fontWeight: '600',
+  },
+
+  dropdownItemSub: {
+    color: COLORS.textMuted,
+    fontSize: 11,
+  },
+
+  dropdownEmpty: {
+    color: COLORS.textMuted,
+    fontSize: 12,
+    textAlign: 'center',
+    paddingVertical: 16,
+  },
+
   // ─── Offline / Sync ─────────────────────────────────────
   offlineBar: {
     flexDirection: 'row',

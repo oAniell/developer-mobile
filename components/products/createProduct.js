@@ -11,6 +11,7 @@ export default function CreateProduct({
   const [nome, setNome] = useState('');
   const [preco, setPreco] = useState('');
   const [descricao, setDescricao] = useState('');
+  const [quantidade, setQuantidade] = useState('');
   const [errors, setErrors] = useState({});
   const [focusedField, setFocusedField] = useState(null);
 
@@ -23,22 +24,24 @@ export default function CreateProduct({
       setNome('');
       setPreco('');
       setDescricao('');
+      setQuantidade('');
     }
     setErrors({});
   }, [productEditando]);
 
   function validate() {
     const newErrors = {};
-    if (!nome.trim())
-      newErrors.nome = 'Nome é obrigatório';
+    if (!nome.trim()) newErrors.nome = 'Nome é obrigatório';
 
-    if (!preco.trim())
-      newErrors.preco = 'Preço é obrigatório';
-    else if (isNaN(preco.trim()) || Number(preco.trim()) < 0)
-      newErrors.preco = 'Preço inválido';
+    if (!preco.trim()) newErrors.preco = 'Preço é obrigatório';
+    else if (isNaN(preco.trim()) || Number(preco.trim()) < 0) newErrors.preco = 'Preço inválido';
 
-    if (!descricao.trim())
-      newErrors.descricao = 'Descrição é obrigatória';
+    if (!descricao.trim()) newErrors.descricao = 'Descrição é obrigatória';
+
+    if (!isEditing) {
+      if (!quantidade.trim()) newErrors.quantidade = 'Quantidade inicial é obrigatória';
+      else if (isNaN(quantidade) || Number(quantidade) < 0) newErrors.quantidade = 'Quantidade inválida';
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -47,7 +50,7 @@ export default function CreateProduct({
   function handleSubmit() {
     if (!validate()) return;
 
-    if (productEditando) {
+    if (isEditing) {
       onUpdateProduct({
         id: productEditando.id,
         name: nome.trim(),
@@ -59,12 +62,14 @@ export default function CreateProduct({
         name: nome.trim(),
         price: parseFloat(preco.trim()),
         description: descricao.trim(),
+        quantidadeInicial: Number(quantidade),
       });
     }
 
     setNome('');
     setPreco('');
     setDescricao('');
+    setQuantidade('');
     setErrors({});
   }
 
@@ -72,6 +77,7 @@ export default function CreateProduct({
     setNome('');
     setPreco('');
     setDescricao('');
+    setQuantidade('');
     setErrors({});
     if (onCancelEdit) onCancelEdit();
   }
@@ -80,7 +86,6 @@ export default function CreateProduct({
 
   return (
     <View style={styles.form}>
-      {/* Form header */}
       <View style={styles.formHeader}>
         <View style={styles.formIconBg}>
           <Text style={styles.formIcon}>{isEditing ? '✏️' : '➕'}</Text>
@@ -88,49 +93,33 @@ export default function CreateProduct({
         <View>
           <Text style={styles.formTitle}>{isEditing ? 'Editar Produto' : 'Novo Produto'}</Text>
           <Text style={styles.formSubtitle}>
-            {isEditing ? `Editando produto` : 'Preencha os dados abaixo'}
+            {isEditing ? 'Editando produto' : 'Preencha os dados abaixo'}
           </Text>
         </View>
       </View>
 
-      {/* Nome */}
       <View style={styles.inputGroup}>
         <Text style={styles.inputLabel}>NOME</Text>
         <TextInput
-          style={[
-            styles.input,
-            focusedField === 'nome' && styles.inputFocused,
-            errors.nome && styles.inputError,
-          ]}
+          style={[styles.input, focusedField === 'nome' && styles.inputFocused, errors.nome && styles.inputError]}
           placeholder="Ex: Camiseta Básica"
           placeholderTextColor={COLORS.textMuted}
           value={nome}
-          onChangeText={(text) => {
-            setNome(text);
-            if (errors.nome) setErrors(prev => ({ ...prev, nome: null }));
-          }}
+          onChangeText={t => { setNome(t); if (errors.nome) setErrors(p => ({ ...p, nome: null })); }}
           onFocus={() => setFocusedField('nome')}
           onBlur={() => setFocusedField(null)}
         />
         {errors.nome && <Text style={styles.errorText}>{errors.nome}</Text>}
       </View>
 
-      {/* Preço */}
       <View style={styles.inputGroup}>
         <Text style={styles.inputLabel}>PREÇO (R$)</Text>
         <TextInput
-          style={[
-            styles.input,
-            focusedField === 'preco' && styles.inputFocused,
-            errors.preco && styles.inputError,
-          ]}
+          style={[styles.input, focusedField === 'preco' && styles.inputFocused, errors.preco && styles.inputError]}
           placeholder="Ex: 49.90"
           placeholderTextColor={COLORS.textMuted}
           value={preco}
-          onChangeText={(text) => {
-            setPreco(text);
-            if (errors.preco) setErrors(prev => ({ ...prev, preco: null }));
-          }}
+          onChangeText={t => { setPreco(t); if (errors.preco) setErrors(p => ({ ...p, preco: null })); }}
           onFocus={() => setFocusedField('preco')}
           onBlur={() => setFocusedField(null)}
           keyboardType="numeric"
@@ -138,41 +127,43 @@ export default function CreateProduct({
         {errors.preco && <Text style={styles.errorText}>{errors.preco}</Text>}
       </View>
 
-      {/* Descrição */}
       <View style={styles.inputGroup}>
         <Text style={styles.inputLabel}>DESCRIÇÃO</Text>
         <TextInput
-          style={[
-            styles.input,
-            focusedField === 'descricao' && styles.inputFocused,
-            errors.descricao && styles.inputError,
-          ]}
+          style={[styles.input, focusedField === 'descricao' && styles.inputFocused, errors.descricao && styles.inputError]}
           placeholder="Ex: Produto de alta qualidade"
           placeholderTextColor={COLORS.textMuted}
           value={descricao}
-          onChangeText={(text) => {
-            setDescricao(text);
-            if (errors.descricao) setErrors(prev => ({ ...prev, descricao: null }));
-          }}
+          onChangeText={t => { setDescricao(t); if (errors.descricao) setErrors(p => ({ ...p, descricao: null })); }}
           onFocus={() => setFocusedField('descricao')}
           onBlur={() => setFocusedField(null)}
         />
         {errors.descricao && <Text style={styles.errorText}>{errors.descricao}</Text>}
       </View>
 
-      {/* Buttons */}
+      {!isEditing && (
+        <View style={styles.inputGroup}>
+          <Text style={styles.inputLabel}>QUANTIDADE INICIAL NO ESTOQUE</Text>
+          <TextInput
+            style={[styles.input, focusedField === 'quantidade' && styles.inputFocused, errors.quantidade && styles.inputError]}
+            placeholder="Ex: 10"
+            placeholderTextColor={COLORS.textMuted}
+            value={quantidade}
+            onChangeText={t => { setQuantidade(t); if (errors.quantidade) setErrors(p => ({ ...p, quantidade: null })); }}
+            onFocus={() => setFocusedField('quantidade')}
+            onBlur={() => setFocusedField(null)}
+            keyboardType="numeric"
+          />
+          {errors.quantidade && <Text style={styles.errorText}>{errors.quantidade}</Text>}
+        </View>
+      )}
+
       {isEditing ? (
         <View style={styles.buttonGroup}>
-          <TouchableOpacity
-            style={[styles.button, styles.buttonSuccess, styles.buttonFlex]}
-            onPress={handleSubmit}
-          >
+          <TouchableOpacity style={[styles.button, styles.buttonSuccess, styles.buttonFlex]} onPress={handleSubmit}>
             <Text style={styles.buttonTextDark}>Salvar</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.button, styles.buttonGhost, styles.buttonFlex]}
-            onPress={handleCancel}
-          >
+          <TouchableOpacity style={[styles.button, styles.buttonGhost, styles.buttonFlex]} onPress={handleCancel}>
             <Text style={styles.buttonText}>Cancelar</Text>
           </TouchableOpacity>
         </View>
