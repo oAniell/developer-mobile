@@ -10,6 +10,16 @@ router.get('/', (_req, res) => {
   }
 });
 
+router.get('/:produto', (req, res) => {
+  try {
+    const item = estoque.find(e => e.produto === req.params.produto);
+    if (!item) return res.status(404).json({ error: 'Produto não encontrado no estoque' });
+    res.json(item);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.post('/', (req, res) => {
   try {
     const { produto, quantidade } = req.body;

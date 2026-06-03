@@ -146,6 +146,12 @@ function AppContent() {
       showToast('error', 'Banco ainda inicializando, tente novamente');
       return;
     }
+    const itemEstoque = estoque.find(e => e.produto === novoPedido.produto);
+    const disponivelLocal = itemEstoque?.quantidade ?? 0;
+    if (disponivelLocal < novoPedido.quantidade) {
+      showToast('error', `Estoque insuficiente. Disponível: ${disponivelLocal}`);
+      return;
+    }
     const pedidoLocal = {
       id: Date.now().toString(36) + Math.random().toString(36).slice(2),
       produto: novoPedido.produto,

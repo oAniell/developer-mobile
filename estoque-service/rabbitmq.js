@@ -17,13 +17,13 @@ async function iniciarConsumidor() {
       try {
         const { produto, quantidade } = JSON.parse(msg.content.toString());
         const item = estoque.find((e) => e.produto === produto);
-        if (item) {
-          item.quantidade -= quantidade;
-        } else {
-          estoque.push({ produto, quantidade: -quantidade });
+        if (!item || item.quantidade < quantidade) {
+          console.warn(`[Estoque] Estoque insuficiente para "${produto}" (disponível: ${item?.quantidade ?? 0}, pedido: ${quantidade})`);
+          channel.nack(msg, false, false);
+          return;
         }
-        const restante = estoque.find((e) => e.produto === produto).quantidade;
-        console.log(`[Estoque] Produto: ${produto} | Quantidade restante: ${restante}`);
+        item.quantidade -= quantidade;
+        console.log(`[Estoque] Produto: ${produto} | Quantidade restante: ${item.quantidade}`);
         channel.ack(msg);
       } catch (err) {
         console.error('[Estoque] Mensagem malformada:', err.message);
