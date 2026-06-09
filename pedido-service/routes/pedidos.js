@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { publicarPedido } = require('../rabbitmq');
 const { pedidos } = require('../data/pedidos');
+const { persistirPedido } = require('../data/pedidosRepository');
 
 const ESTOQUE_API = process.env.ESTOQUE_API_URL || 'http://localhost:3002';
 
@@ -37,6 +38,7 @@ router.post('/', async (req, res) => {
     const pedido = { id, produto, quantidade };
     pedidos.push(pedido);
     await publicarPedido(pedido);
+    await persistirPedido(pedido);
     res.status(201).json(pedido);
   } catch (err) {
     res.status(500).json({ error: `RabbitMQ indisponível ou erro interno: ${err.message}` });
