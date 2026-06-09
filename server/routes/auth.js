@@ -41,6 +41,8 @@ router.post('/login', async (req, res) => {
   try {
     const { email, senha } = req.body;
 
+    if (!email || !senha) return res.status(400).json({ mensagem: 'Email e senha são obrigatórios' });
+
     const snapshot = await db.collection('auth_users').where('email', '==', email).get();
     if (snapshot.empty) {
       return res.status(401).json({ mensagem: 'Usuário ou senha inválidos' });

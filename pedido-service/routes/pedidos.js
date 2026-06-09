@@ -9,6 +9,12 @@ router.post('/', async (req, res) => {
   try {
     const { id, produto, quantidade } = req.body;
 
+    if (!produto || typeof produto !== 'string' || !produto.trim())
+      return res.status(400).json({ error: 'Campo "produto" é obrigatório' });
+    const qtd = Number(quantidade);
+    if (!quantidade || isNaN(qtd) || qtd <= 0)
+      return res.status(400).json({ error: 'Campo "quantidade" deve ser um número positivo' });
+
     // Verifica estoque disponível antes de aceitar
     try {
       const estoqueRes = await fetch(`${ESTOQUE_API}/estoque/${encodeURIComponent(produto)}`);

@@ -42,7 +42,11 @@
       "Bash(New-Item -ItemType Directory -Force \"C:\\\\Users\\\\guilherme_a_oliveir2\\\\Develop-Mobile\\\\Produtos-Usuarios\\\\src\\\\database\")",
       "Bash(Out-Null)",
       "Bash(New-Item -ItemType Directory -Force \"C:\\\\Users\\\\guilherme_a_oliveir2\\\\Develop-Mobile\\\\Produtos-Usuarios\\\\src\\\\hooks\")",
-      "Bash(Write-Output \"done\")"
+      "Bash(Write-Output \"done\")",
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(Sort-Object)",
+      "Bash(npx jest *)",
+      "Bash(Remove-Item *)"
     ]
   }
 }

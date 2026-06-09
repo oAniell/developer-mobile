@@ -1,5 +1,6 @@
 const amqp = require('amqplib');
 const { estoque } = require('./data/estoque');
+const { persistirItem } = require('./data/estoqueRepository');
 
 const FILA = 'fila_pedidos';
 
@@ -12,10 +13,15 @@ async function iniciarConsumidor() {
 
     console.log(`[Estoque] Aguardando mensagens na fila "${FILA}"...`);
 
-    channel.consume(FILA, (msg) => {
+    channel.consume(FILA, async (msg) => {
       if (!msg) return;
       try {
         const { produto, quantidade } = JSON.parse(msg.content.toString());
+        if (!produto || typeof produto !== 'string' || !quantidade || typeof quantidade !== 'number') {
+          console.error('[Estoque] Mensagem com campos inválidos:', { produto, quantidade });
+          channel.nack(msg, false, false);
+          return;
+        }
         const item = estoque.find((e) => e.produto === produto);
         if (!item || item.quantidade < quantidade) {
           console.warn(`[Estoque] Estoque insuficiente para "${produto}" (disponível: ${item?.quantidade ?? 0}, pedido: ${quantidade})`);
@@ -23,6 +29,7 @@ async function iniciarConsumidor() {
           return;
         }
         item.quantidade -= quantidade;
+        await persistirItem(item.produto, item.quantidade);
         console.log(`[Estoque] Produto: ${produto} | Quantidade restante: ${item.quantidade}`);
         channel.ack(msg);
       } catch (err) {

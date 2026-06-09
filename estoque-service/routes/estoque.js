@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { estoque } = require('../data/estoque');
+const { persistirItem } = require('../data/estoqueRepository');
 
 router.get('/', (_req, res) => {
   try {
@@ -20,7 +21,7 @@ router.get('/:produto', (req, res) => {
   }
 });
 
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
   try {
     const { produto, quantidade } = req.body;
     if (!produto || typeof produto !== 'string' || !produto.trim()) {
@@ -40,6 +41,7 @@ router.post('/', (req, res) => {
 
     const resultado = estoque.find((e) => e.produto === produto.trim());
     console.log(`[Estoque] Adicionado: ${resultado.produto} | Quantidade total: ${resultado.quantidade}`);
+    await persistirItem(resultado.produto, resultado.quantidade);
     res.status(201).json(resultado);
   } catch (err) {
     res.status(500).json({ error: err.message });

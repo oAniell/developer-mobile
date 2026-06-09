@@ -33,13 +33,20 @@ yarn-error.*
 # local env files
 .env*.local
 
-# Firebase service account key (never commit this!)
-server/serviceAccountKey.json
+# Firebase service account keys (never commit these!)
+**/serviceAccountKey.json
+**/serviceAccountKey*.json
 
-# Server environment variables
+# Environment variables
+.env
+**/.env
+.env.local
 server/.env
 pedido-service/.env
 estoque-service/.env
+
+# Seed / scripts de setup (contêm credenciais de teste)
+**/seed-*.js
 
 # typescript
 *.tsbuildinfo

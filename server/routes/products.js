@@ -28,7 +28,8 @@ router.put('/:id', autenticar, async (req, res) => {
     const isAdmin = req.usuario.perfil === 'admin';
     if (!isAdmin && produto.userId !== req.usuario.id)
       return res.status(403).json({ mensagem: 'Você não tem permissão para modificar este produto' });
-    const updated = await updateProduct(req.params.id, req.body);
+    const { userId: _removido, ...dadosPermitidos } = req.body;
+    const updated = await updateProduct(req.params.id, dadosPermitidos);
     res.json(updated);
   } catch (err) {
     res.status(500).json({ error: err.message });
