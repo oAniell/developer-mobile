@@ -1,23 +1,18 @@
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_PASS,
-  },
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 async function enviarSenhaProvisoria({ nome, email, senha }) {
-  await transporter.sendMail({
-    from: `"Sistema" <${process.env.GMAIL_USER}>`,
+  await resend.emails.send({
+    from: 'Vendly <onboarding@resend.dev>',
     to: email,
-    subject: 'Seu acesso ao sistema',
+    subject: 'Seu acesso ao Vendly',
     html: `
       <h2>Olá, ${nome}!</h2>
-      <p>Sua conta foi criada. Use as credenciais abaixo para acessar o sistema:</p>
+      <p>Sua conta foi criada no <strong>Vendly</strong>. Use as credenciais abaixo para acessar o sistema:</p>
       <p><strong>Email:</strong> ${email}</p>
       <p><strong>Senha provisória:</strong> ${senha}</p>
+      <p>Recomendamos trocar sua senha após o primeiro acesso.</p>
     `,
   });
 }
