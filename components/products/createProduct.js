@@ -1,6 +1,6 @@
 import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 import styles, { COLORS } from '../../styles/styles';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export default function CreateProduct({
   onCreateProduct,
@@ -14,6 +14,9 @@ export default function CreateProduct({
   const [quantidade, setQuantidade] = useState('');
   const [errors, setErrors] = useState({});
   const [focusedField, setFocusedField] = useState(null);
+  const precoRef = useRef(null);
+  const descricaoRef = useRef(null);
+  const quantidadeRef = useRef(null);
 
   useEffect(() => {
     if (productEditando) {
@@ -106,6 +109,8 @@ export default function CreateProduct({
           placeholderTextColor={COLORS.textMuted}
           value={nome}
           onChangeText={t => { setNome(t); if (errors.nome) setErrors(p => ({ ...p, nome: null })); }}
+          returnKeyType="next"
+          onSubmitEditing={() => precoRef.current?.focus()}
           onFocus={() => setFocusedField('nome')}
           onBlur={() => setFocusedField(null)}
         />
@@ -115,11 +120,14 @@ export default function CreateProduct({
       <View style={styles.inputGroup}>
         <Text style={styles.inputLabel}>PREÇO (R$)</Text>
         <TextInput
+          ref={precoRef}
           style={[styles.input, focusedField === 'preco' && styles.inputFocused, errors.preco && styles.inputError]}
           placeholder="Ex: 49.90"
           placeholderTextColor={COLORS.textMuted}
           value={preco}
           onChangeText={t => { setPreco(t); if (errors.preco) setErrors(p => ({ ...p, preco: null })); }}
+          returnKeyType="next"
+          onSubmitEditing={() => descricaoRef.current?.focus()}
           onFocus={() => setFocusedField('preco')}
           onBlur={() => setFocusedField(null)}
           keyboardType="numeric"
@@ -130,11 +138,14 @@ export default function CreateProduct({
       <View style={styles.inputGroup}>
         <Text style={styles.inputLabel}>DESCRIÇÃO</Text>
         <TextInput
+          ref={descricaoRef}
           style={[styles.input, focusedField === 'descricao' && styles.inputFocused, errors.descricao && styles.inputError]}
           placeholder="Ex: Produto de alta qualidade"
           placeholderTextColor={COLORS.textMuted}
           value={descricao}
           onChangeText={t => { setDescricao(t); if (errors.descricao) setErrors(p => ({ ...p, descricao: null })); }}
+          returnKeyType={isEditing ? 'go' : 'next'}
+          onSubmitEditing={isEditing ? handleSubmit : () => quantidadeRef.current?.focus()}
           onFocus={() => setFocusedField('descricao')}
           onBlur={() => setFocusedField(null)}
         />
@@ -145,11 +156,14 @@ export default function CreateProduct({
         <View style={styles.inputGroup}>
           <Text style={styles.inputLabel}>QUANTIDADE INICIAL NO ESTOQUE</Text>
           <TextInput
+            ref={quantidadeRef}
             style={[styles.input, focusedField === 'quantidade' && styles.inputFocused, errors.quantidade && styles.inputError]}
             placeholder="Ex: 10"
             placeholderTextColor={COLORS.textMuted}
             value={quantidade}
             onChangeText={t => { setQuantidade(t); if (errors.quantidade) setErrors(p => ({ ...p, quantidade: null })); }}
+            returnKeyType="go"
+            onSubmitEditing={handleSubmit}
             onFocus={() => setFocusedField('quantidade')}
             onBlur={() => setFocusedField(null)}
             keyboardType="numeric"

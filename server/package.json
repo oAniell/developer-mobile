@@ -1,7 +1,7 @@
 {
-  "name": "api-produtos",
+  "name": "vendly-server",
   "version": "1.0.0",
-  "description": "API REST de produtos em Node.js",
+  "description": "Vendly — API principal de autenticação, usuários e produtos",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

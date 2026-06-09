@@ -121,6 +121,8 @@ export default function CreateEstoque({ onCreateEstoque, products = [] }) {
           placeholderTextColor={COLORS.textMuted}
           value={quantidade}
           onChangeText={t => { setQuantidade(t); if (errors.quantidade) setErrors(p => ({ ...p, quantidade: null })); }}
+          returnKeyType="go"
+          onSubmitEditing={handleSubmit}
           onFocus={() => setFocusedField('quantidade')}
           onBlur={() => setFocusedField(null)}
           keyboardType="numeric"

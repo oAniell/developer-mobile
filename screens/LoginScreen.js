@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, StyleSheet } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import { COLORS } from '../styles/styles';
@@ -10,6 +10,7 @@ export default function LoginScreen() {
   const [erro, setErro] = useState('');
   const [carregando, setCarregando] = useState(false);
   const [focusedField, setFocusedField] = useState(null);
+  const senhaRef = useRef(null);
 
   async function handleLogin() {
     setErro('');
@@ -29,7 +30,7 @@ export default function LoginScreen() {
 
         <View style={s.logoRow}>
           <View style={s.logoDot} />
-          <Text style={s.logoText}>Cadastros</Text>
+          <Text style={s.logoText}>Vendly</Text>
         </View>
 
         <Text style={s.title}>Entrar na conta</Text>
@@ -45,6 +46,8 @@ export default function LoginScreen() {
             onChangeText={t => { setEmail(t); setErro(''); }}
             keyboardType="email-address"
             autoCapitalize="none"
+            returnKeyType="next"
+            onSubmitEditing={() => senhaRef.current?.focus()}
             onFocus={() => setFocusedField('email')}
             onBlur={() => setFocusedField(null)}
           />
@@ -53,12 +56,15 @@ export default function LoginScreen() {
         <View style={s.fieldGroup}>
           <Text style={s.label}>SENHA</Text>
           <TextInput
+            ref={senhaRef}
             style={[s.input, focusedField === 'senha' && s.inputFocused]}
             placeholder="••••••••"
             placeholderTextColor={COLORS.textMuted}
             value={senha}
             onChangeText={t => { setSenha(t); setErro(''); }}
             secureTextEntry
+            returnKeyType="go"
+            onSubmitEditing={handleLogin}
             onFocus={() => setFocusedField('senha')}
             onBlur={() => setFocusedField(null)}
           />

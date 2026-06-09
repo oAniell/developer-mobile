@@ -1,4 +1,4 @@
-# Sistema de Gestão de Vendas Interna
+# Vendly — Sistema de Gestão de Vendas Interna
 ## Documentação Técnica — Entrega de Trabalho
 
 ---

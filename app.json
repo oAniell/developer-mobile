@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "products-users",
-    "slug": "products-users",
+    "name": "Vendly",
+    "slug": "vendly",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

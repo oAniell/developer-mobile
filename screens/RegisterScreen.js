@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import styles, { COLORS } from '../styles/styles';
@@ -12,6 +12,8 @@ export default function RegisterScreen({ onNavigateToLogin }) {
   const [errors, setErrors] = useState({});
   const [erroApi, setErroApi] = useState('');
   const [carregando, setCarregando] = useState(false);
+  const emailRef = useRef(null);
+  const senhaRef = useRef(null);
 
   function validate() {
     const e = {};
@@ -48,10 +50,13 @@ export default function RegisterScreen({ onNavigateToLogin }) {
           placeholderTextColor={COLORS.textMuted}
           value={nome}
           onChangeText={v => { setNome(v); setErrors(p => ({ ...p, nome: null })); }}
+          returnKeyType="next"
+          onSubmitEditing={() => emailRef.current?.focus()}
         />
         {errors.nome ? <Text style={styles.registerFieldErro}>{errors.nome}</Text> : null}
 
         <TextInput
+          ref={emailRef}
           style={[styles.registerInput, errors.email && styles.registerInputError]}
           placeholder="Email"
           placeholderTextColor={COLORS.textMuted}
@@ -59,16 +64,21 @@ export default function RegisterScreen({ onNavigateToLogin }) {
           onChangeText={v => { setEmail(v); setErrors(p => ({ ...p, email: null })); }}
           keyboardType="email-address"
           autoCapitalize="none"
+          returnKeyType="next"
+          onSubmitEditing={() => senhaRef.current?.focus()}
         />
         {errors.email ? <Text style={styles.registerFieldErro}>{errors.email}</Text> : null}
 
         <TextInput
+          ref={senhaRef}
           style={[styles.registerInput, errors.senha && styles.registerInputError]}
           placeholder="Senha (mínimo 8 caracteres)"
           placeholderTextColor={COLORS.textMuted}
           value={senha}
           onChangeText={v => { setSenha(v); setErrors(p => ({ ...p, senha: null })); }}
           secureTextEntry
+          returnKeyType="go"
+          onSubmitEditing={handleRegister}
         />
         {errors.senha ? <Text style={styles.registerFieldErro}>{errors.senha}</Text> : null}
 

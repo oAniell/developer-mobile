@@ -547,7 +547,7 @@ function AppContent() {
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <View style={styles.headerDot} />
-          <Text style={styles.title}>Cadastros</Text>
+          <Text style={styles.title}>Vendly</Text>
         </View>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
           <View style={styles.headerBadge}>

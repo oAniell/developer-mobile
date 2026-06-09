@@ -1,6 +1,6 @@
 import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 import styles, { COLORS } from '../../styles/styles';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 export default function CreateUsers({
   onCreateUser,
@@ -14,6 +14,7 @@ export default function CreateUsers({
   const [perfil, setPerfil] = useState('usuario');
   const [errors, setErrors] = useState({});
   const [focusedField, setFocusedField] = useState(null);
+  const emailRef = useRef(null);
 
   useEffect(() => {
     if (userEditando) {
@@ -101,6 +102,8 @@ export default function CreateUsers({
             setNome(text);
             if (errors.nome) setErrors(prev => ({ ...prev, nome: null }));
           }}
+          returnKeyType="next"
+          onSubmitEditing={() => emailRef.current?.focus()}
           onFocus={() => setFocusedField('nome')}
           onBlur={() => setFocusedField(null)}
         />
@@ -111,6 +114,7 @@ export default function CreateUsers({
       <View style={styles.inputGroup}>
         <Text style={styles.inputLabel}>EMAIL</Text>
         <TextInput
+          ref={emailRef}
           style={[
             styles.input,
             focusedField === 'email' && styles.inputFocused,
@@ -123,6 +127,8 @@ export default function CreateUsers({
             setEmail(text);
             if (errors.email) setErrors(prev => ({ ...prev, email: null }));
           }}
+          returnKeyType="go"
+          onSubmitEditing={handleSubmit}
           onFocus={() => setFocusedField('email')}
           onBlur={() => setFocusedField(null)}
           keyboardType="email-address"
