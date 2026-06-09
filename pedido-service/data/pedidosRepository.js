@@ -17,10 +17,12 @@ async function carregarDoFirestore(pedidosArray) {
 async function persistirPedido(pedido) {
   if (!db) return;
   try {
-    await db.collection(COLECAO).doc(pedido.id).set({
-      ...pedido,
-      criadoEm: new Date().toISOString(),
-    });
+    const dados = { ...pedido, criadoEm: new Date().toISOString() };
+    if (pedido.id) {
+      await db.collection(COLECAO).doc(String(pedido.id)).set(dados);
+    } else {
+      await db.collection(COLECAO).add(dados);
+    }
   } catch (err) {
     console.error('[Pedidos] Erro ao persistir no Firestore:', err.message);
   }

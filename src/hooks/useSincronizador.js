@@ -27,6 +27,7 @@ export function useSincronizador({ isConnected, showToast, onPedidosUpdated }) {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
+              id: pedido.id,
               produto: pedido.produto,
               quantidade: pedido.quantidade,
             }),
