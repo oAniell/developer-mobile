@@ -9,7 +9,7 @@ export default function CreateProduct({
   onCancelEdit,
 }) {
   const [nome, setNome] = useState('');
-  const [preco, setPreco] = useState('');
+  const [precoCentavos, setPrecoCentavos] = useState('');
   const [descricao, setDescricao] = useState('');
   const [quantidade, setQuantidade] = useState('');
   const [errors, setErrors] = useState({});
@@ -21,31 +21,47 @@ export default function CreateProduct({
   useEffect(() => {
     if (productEditando) {
       setNome(productEditando.name);
-      setPreco(String(productEditando.price));
+      setPrecoCentavos(Math.round(productEditando.price * 100).toString());
       setDescricao(productEditando.description);
     } else {
       setNome('');
-      setPreco('');
+      setPrecoCentavos('');
       setDescricao('');
       setQuantidade('');
     }
     setErrors({});
   }, [productEditando]);
 
+  function formatarPreco(centavos) {
+    if (!centavos) return '';
+    const padded = centavos.padStart(3, '0');
+    const inteiro = parseInt(padded.slice(0, -2), 10).toString();
+    const decimal = padded.slice(-2);
+    return `${inteiro},${decimal}`;
+  }
+
+  function handlePrecoChange(text) {
+    const digits = text.replace(/\D/g, '').replace(/^0+/, '');
+    if (digits.length > 10) return; // limite: 99.999.999,99
+    setPrecoCentavos(digits);
+    if (errors.preco) setErrors(p => ({ ...p, preco: null }));
+  }
+
+  function precoNumerico() {
+    if (!precoCentavos) return 0;
+    return parseInt(precoCentavos, 10) / 100;
+  }
+
   function validate() {
     const newErrors = {};
     if (!nome.trim()) newErrors.nome = 'Nome é obrigatório';
-
-    if (!preco.trim()) newErrors.preco = 'Preço é obrigatório';
-    else if (isNaN(preco.trim()) || Number(preco.trim()) < 0) newErrors.preco = 'Preço inválido';
-
+    if (!precoCentavos) newErrors.preco = 'Preço é obrigatório';
+    else if (precoNumerico() <= 0) newErrors.preco = 'Preço deve ser maior que zero';
     if (!descricao.trim()) newErrors.descricao = 'Descrição é obrigatória';
-
     if (!isEditing) {
       if (!quantidade.trim()) newErrors.quantidade = 'Quantidade inicial é obrigatória';
       else if (isNaN(quantidade) || Number(quantidade) < 0) newErrors.quantidade = 'Quantidade inválida';
     }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }
@@ -57,20 +73,20 @@ export default function CreateProduct({
       onUpdateProduct({
         id: productEditando.id,
         name: nome.trim(),
-        price: parseFloat(preco.trim()),
+        price: precoNumerico(),
         description: descricao.trim(),
       });
     } else {
       onCreateProduct({
         name: nome.trim(),
-        price: parseFloat(preco.trim()),
+        price: precoNumerico(),
         description: descricao.trim(),
         quantidadeInicial: Number(quantidade),
       });
     }
 
     setNome('');
-    setPreco('');
+    setPrecoCentavos('');
     setDescricao('');
     setQuantidade('');
     setErrors({});
@@ -78,7 +94,7 @@ export default function CreateProduct({
 
   function handleCancel() {
     setNome('');
-    setPreco('');
+    setPrecoCentavos('');
     setDescricao('');
     setQuantidade('');
     setErrors({});
@@ -122,10 +138,10 @@ export default function CreateProduct({
         <TextInput
           ref={precoRef}
           style={[styles.input, focusedField === 'preco' && styles.inputFocused, errors.preco && styles.inputError]}
-          placeholder="Ex: 49.90"
+          placeholder="0,00"
           placeholderTextColor={COLORS.textMuted}
-          value={preco}
-          onChangeText={t => { setPreco(t); if (errors.preco) setErrors(p => ({ ...p, preco: null })); }}
+          value={formatarPreco(precoCentavos)}
+          onChangeText={handlePrecoChange}
           returnKeyType="next"
           onSubmitEditing={() => descricaoRef.current?.focus()}
           onFocus={() => setFocusedField('preco')}
