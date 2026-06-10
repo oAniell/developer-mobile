@@ -13,6 +13,7 @@ import CardPedido from './components/pedidos/cardPedido';
 import CardEstoque from './components/estoque/cardEstoque';
 import CreateEstoque from './components/estoque/createEstoque';
 import ConfirmModal from './components/ConfirmModal';
+import SenhaProvModal from './components/SenhaProvModal';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import LoginScreen from './screens/LoginScreen';
 import Toast from './components/Toast';
@@ -38,6 +39,7 @@ function AppContent() {
   const [userEditando, setUserEditando] = useState(null);
   const [productEditando, setProductEditando] = useState(null);
   const [confirmModal, setConfirmModal] = useState({ visible: false, message: '', onConfirm: null });
+  const [senhaModal, setSenhaModal] = useState({ visible: false, nome: '', email: '', senha: '' });
   const [productError, setProductError] = useState('');
   const [pedidos, setPedidos] = useState([]);
   const [estoque, setEstoque] = useState([]);
@@ -219,7 +221,11 @@ function AppContent() {
         if (!created) return;
         setUsers(prev => [...prev, created]);
         if (!isDesktop) setMobileView('list');
-        showToast('success', 'Usuário criado com sucesso');
+        if (created.senhaProvisoria) {
+          setSenhaModal({ visible: true, nome: created.name, email: created.email, senha: created.senhaProvisoria });
+        } else {
+          showToast('success', 'Usuário criado com sucesso');
+        }
       })
       .catch(err => showToast('error', err.message));
   }
@@ -681,6 +687,14 @@ function AppContent() {
           )}
         </View>
       )}
+
+      <SenhaProvModal
+        visible={senhaModal.visible}
+        nome={senhaModal.nome}
+        email={senhaModal.email}
+        senha={senhaModal.senha}
+        onFechar={() => setSenhaModal(m => ({ ...m, visible: false }))}
+      />
 
       <ConfirmModal
         visible={confirmModal.visible}

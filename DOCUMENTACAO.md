@@ -110,7 +110,7 @@ O sistema é uma aplicação **fullstack mobile** de gestão de vendas interna, 
 | jsonwebtoken | 9.0.3 | Geração e verificação de tokens JWT |
 | bcrypt | 6.0.0 | Hash seguro de senhas |
 | amqplib | 0.10.4 | Cliente AMQP para RabbitMQ |
-| Resend / Nodemailer | — | Envio de e-mails transacionais |
+| Brevo | — | Envio de e-mails transacionais via API HTTPS |
 
 ### Infraestrutura
 
@@ -176,7 +176,7 @@ Produtos-Usuarios/
 │   ├── data/
 │   │   └── db.js                   # Funções CRUD Firestore
 │   ├── services/
-│   │   └── email.js                # Envio de senha provisória
+│   │   └── email.js                # Envio de senha provisória via Brevo (API HTTPS)
 │   └── __tests__/
 │       ├── protect.test.js         # 8 testes de middleware
 │       ├── auth.test.js            # 9 testes de autenticação
@@ -674,7 +674,8 @@ EXPO_PUBLIC_ESTOQUE_API_URL=https://estoque-service.onrender.com
 PORT=3000
 JWT_SECRET=sua-chave-secreta-longa
 FIREBASE_SERVICE_ACCOUNT={"type":"service_account",...} # JSON da conta de serviço
-RESEND_API_KEY=re_xxxx                                   # Chave da API de e-mail
+BREVO_API_KEY=xkeysib-xxxx                               # Chave da API Brevo (brevo.com)
+BREVO_SENDER_EMAIL=seuemail@gmail.com                    # Email verificado como remetente no Brevo
 ```
 
 ### Pedido-Service (pedido-service/.env)

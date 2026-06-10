@@ -40,7 +40,7 @@ router.post('/', autenticar, autorizar('admin'), async (req, res) => {
     enviarSenhaProvisoria({ nome: name, email, senha: senhaProvisoria })
       .catch(err => console.error('Falha ao enviar email para', email, ':', err.message));
 
-    res.status(201).json(user);
+    res.status(201).json({ ...user, senhaProvisoria });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
