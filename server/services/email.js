@@ -22,6 +22,9 @@ async function enviarSenhaProvisoria({ nome, email, senha }) {
         <p><strong>Email:</strong> ${email}</p>
         <p><strong>Senha provisória:</strong> <span style="font-size:18px;font-weight:bold">${senha}</span></p>
         <p style="color:#888">Recomendamos trocar sua senha após o primeiro acesso.</p>
+        <a href="https://products-users-senai.vercel.app/" style="display:inline-block;margin-top:12px;padding:12px 24px;background:#2563eb;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">
+          Acessar o Vendly
+        </a>
       `,
     }),
   });
